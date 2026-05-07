@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartBin - Smart Waste Management System</title>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="/smart-waste-system/css/main.css">
+    <link rel="stylesheet" href="/smart-waste-system/css/landing.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
     <!-- Navigation -->
@@ -25,8 +26,8 @@
                 <a href="#stats">Stats</a>
             </div>
             <div class="nav-actions">
-                <a href="index.html" class="btn btn-outline">Login</a>
-                <a href="index.html" class="btn btn-primary">Get Started</a>
+                <a href="/auth/login" class="btn btn-outline">Login</a>
+                <a href="/auth/register" class="btn btn-primary">Get Started</a>
             </div>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <i class="fas fa-bars"></i>
@@ -84,7 +85,7 @@
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-image">
-                        <img src="images/smart bin.jpeg" alt="Smart Bin Monitoring">
+                        <img src="/smart-waste-system/images/smart bin.jpeg" alt="Smart Bin Monitoring">
                     </div>
                     <div class="feature-icon green">
                         <i class="fas fa-trash-alt"></i>
@@ -94,7 +95,7 @@
                 </div>
                 <div class="feature-card">
                     <div class="feature-image">
-                        <img src="images/user.jpeg" alt="Citizen User">
+                        <img src="/smart-waste-system/images/user.jpeg" alt="Citizen User">
                     </div>
                     <div class="feature-icon blue">
                         <i class="fas fa-truck-loading"></i>
@@ -104,7 +105,7 @@
                 </div>
                 <div class="feature-card">
                     <div class="feature-image">
-                        <img src="images/administrator.jpeg" alt="Administrator">
+                        <img src="/smart-waste-system/images/administrator.jpeg" alt="Administrator">
                     </div>
                     <div class="feature-icon orange">
                         <i class="fas fa-route"></i>
@@ -147,7 +148,7 @@
             <div class="roles-grid">
                 <div class="role-card citizen">
                     <div class="role-image">
-                        <img src="images/user.jpeg" alt="Citizen Dashboard">
+                        <img src="/smart-waste-system/images/user.jpeg" alt="Citizen Dashboard">
                     </div>
                     <div class="role-icon">
                         <i class="fas fa-user"></i>
@@ -165,7 +166,7 @@
                 </div>
                 <div class="role-card driver">
                     <div class="role-image">
-                        <img src="images/GettyImages-495351035.jpg" alt="Driver Dashboard">
+                        <img src="/smart-waste-system/images/GettyImages-495351035.jpg" alt="Driver Dashboard">
                     </div>
                     <div class="role-icon">
                         <i class="fas fa-truck"></i>
@@ -183,7 +184,7 @@
                 </div>
                 <div class="role-card admin">
                     <div class="role-image">
-                        <img src="images/administrator.jpeg" alt="Admin Dashboard">
+                        <img src="/smart-waste-system/images/administrator.jpeg" alt="Admin Dashboard">
                     </div>
                     <div class="role-icon">
                         <i class="fas fa-user-shield"></i>
@@ -257,42 +258,31 @@
     </section>
 
     <script>
-        function initMap() {
-            const map = new google.maps.Map(document.getElementById('zambiaMap'), {
-                zoom: 6,
-                center: { lat: -13.1339, lng: 27.8493 }, // Zambia center
-                styles: [
-                    { elementType: 'geometry', stylers: [{ color: '#e8f5e9' }] },
-                    { elementType: 'labels.text.fill', stylers: [{ color: '#2c3e50' }] },
-                    { featureType: 'water', stylers: [{ color: '#3498db' }] }
-                ]
-            });
+        // Initialize Leaflet map (FREE - no API key needed)
+        const map = L.map('zambiaMap').setView([-13.1339, 27.8493], 6); // Zambia center
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-            const bins = [
-                { lat: -15.3875, lng: 28.3228, title: 'Lusaka - Bin #001', fill: 45 },
-                { lat: -13.1339, lng: 27.8493, title: 'Kabwe - Bin #002', fill: 72 },
-                { lat: -11.6683, lng: 27.4833, title: 'Ndola - Bin #003', fill: 95 },
-                { lat: -14.2765, lng: 28.6440, title: 'Chingola - Bin #004', fill: 30 },
-                { lat: -12.8167, lng: 28.2167, title: 'Kitwe - Bin #005', fill: 60 }
-            ];
+        const bins = [
+            { lat: -15.3875, lng: 28.3228, title: 'Lusaka - Bin #001', fill: 45 },
+            { lat: -13.1339, lng: 27.8493, title: 'Kabwe - Bin #002', fill: 72 },
+            { lat: -11.6683, lng: 27.4833, title: 'Ndola - Bin #003', fill: 95 },
+            { lat: -14.2765, lng: 28.6440, title: 'Chingola - Bin #004', fill: 30 },
+            { lat: -12.8167, lng: 28.2167, title: 'Kitwe - Bin #005', fill: 60 }
+        ];
 
-            bins.forEach(bin => {
-                const color = bin.fill >= 85 ? '#e74c3c' : bin.fill >= 60 ? '#f39c12' : '#2ecc71';
-                new google.maps.Marker({
-                    position: { lat: bin.lat, lng: bin.lng },
-                    map: map,
-                    title: bin.title,
-                    icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        fillColor: color,
-                        fillOpacity: 1,
-                        strokeColor: '#ffffff',
-                        strokeWeight: 2,
-                        scale: 10
-                    }
-                });
-            });
-        }
+        bins.forEach(bin => {
+            const color = bin.fill >= 85 ? '#e74c3c' : bin.fill >= 60 ? '#f39c12' : '#2ecc71';
+            L.circleMarker([bin.lat, bin.lng], {
+                radius: 12,
+                fillColor: color,
+                color: 'white',
+                weight: 2,
+                fillOpacity: 1
+            }).addTo(map).bindPopup(`<b>${bin.title}</b><br>Fill Level: ${bin.fill}%`);
+        });
     </script>
 
     <!-- Stats Section -->
@@ -383,13 +373,13 @@
                 </div>
                 <div class="footer-contact" id="contact">
                     <h4>Contact Us</h4>
-                    <p><i class="fas fa-envelope"></i> info@smartbin.com</p>
-                    <p><i class="fas fa-phone"></i> +1 234 567 8900</p>
-                    <p><i class="fas fa-map-marker-alt"></i> Smart City, Tech Valley</p>
+                    <p><i class="fas fa-envelope"></i> katongongandu999@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> +260 777757374</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Lusaka zambia</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 SmartBin. All rights reserved. | Built for Smart Cities</p>
+                <p>&copy; katongo ngandu. All rights reserved. | 2210679991</p>
             </div>
         </div>
     </footer>

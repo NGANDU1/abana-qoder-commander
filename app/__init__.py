@@ -17,16 +17,16 @@ def create_app() -> Flask:
     app.config.from_object(AppConfig())
 
     # Frontend integration:
-    # Prefer templates/assets from ../smart-waste-system/ (new UI folder).
+    # Serve templates/assets from ../smart-waste-system/ (new UI folder).
     frontend_dir = Path(app.root_path).resolve().parent / "smart-waste-system"
     if frontend_dir.exists():
         from jinja2 import ChoiceLoader, FileSystemLoader
         from flask import Blueprint
 
-        # Prefer app/templates over new frontend/ templates (frontend remains as fallback).
-        app.jinja_loader = ChoiceLoader([app.jinja_loader, FileSystemLoader(str(frontend_dir))])
+        # Load templates from smart-waste-system/ (fallback to app/templates)
+        app.jinja_loader = ChoiceLoader([FileSystemLoader(str(frontend_dir)), app.jinja_loader])
 
-        # Serve assets from /smart-waste-system/... (css/js/images)
+        # Serve static assets (css/js/images) from smart-waste-system/
         assets_bp = Blueprint(
             "frontend_assets",
             __name__,
@@ -34,6 +34,8 @@ def create_app() -> Flask:
             static_url_path="/smart-waste-system",
         )
         app.register_blueprint(assets_bp)
+    else:
+        print(f"WARNING: Frontend directory not found: {frontend_dir}")
 
     # Extensions
     db.init_app(app)
