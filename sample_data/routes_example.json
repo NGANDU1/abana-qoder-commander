@@ -1,0 +1,13 @@
+{
+  "route_code": "RT-20260419-01-SEED",
+  "date_for": "2026-04-19",
+  "algorithm": "Greedy Nearest-Neighbor (Urgency Weighted)",
+  "truck": "Truck A",
+  "driver": "driver1",
+  "stops": [
+    {"seq": 1, "bin_code": "BIN-003", "status": "pending"},
+    {"seq": 2, "bin_code": "BIN-010", "status": "pending"}
+  ],
+  "notes": "Example structure only; the real demo routes are created in scripts/init_db.py and visible in the UI."
+}
+

@@ -1,0 +1,14 @@
+bin_code,location_name,area,latitude,longitude,waste_type,fill_level
+BIN-001,Oxford Street (near station),Central,51.5152,-0.1419,General,82
+BIN-002,Soho Square,Central,51.5154,-0.1311,Plastic,55
+BIN-003,Trafalgar Square,Central,51.508,-0.1281,General,91
+BIN-004,King's Cross (main entrance),North,51.5308,-0.1238,General,77
+BIN-005,Camden Market,North,51.541,-0.142,Organic,63
+BIN-006,Shoreditch High Street,East,51.5246,-0.0785,Plastic,88
+BIN-007,Canary Wharf (plaza),East,51.5054,-0.0235,General,46
+BIN-008,London Bridge (south side),South,51.5055,-0.0865,General,94
+BIN-009,Brixton (market road),South,51.4613,-0.1166,Organic,58
+BIN-010,Hammersmith Broadway,West,51.492,-0.2243,General,73
+BIN-011,Notting Hill Gate,West,51.5091,-0.196,Glass,38
+BIN-012,Greenwich Park (main gate),East,51.4769,0.0005,Paper,67
+

@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SmartBin</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-recycle"></i>
+                    <span>SmartBin</span>
+                </div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-label">Overview</div>
+                <a href="#" class="menu-item active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="menu-item" data-page="bins">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Smart Bins</span>
+                </a>
+                <a href="#" class="menu-item" data-page="fleet">
+                    <i class="fas fa-truck-moving"></i>
+                    <span>Fleet Monitor</span>
+                </a>
+                <a href="#" class="menu-item" data-page="analytics">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </a>
+                <div class="menu-label">Management</div>
+                <a href="#" class="menu-item" data-page="complaints">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Complaints</span>
+                </a>
+                <a href="#" class="menu-item" data-page="routes">
+                    <i class="fas fa-route"></i>
+                    <span>Route Optimizer</span>
+                </a>
+                <a href="#" class="menu-item" data-page="alerts">
+                    <i class="fas fa-bell"></i>
+                    <span>Smart Alerts</span>
+                </a>
+                <a href="#" class="menu-item" data-page="reports">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="#" class="menu-item" data-page="users">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </a>
+                <div class="menu-label">Account</div>
+                <a href="index.html" class="menu-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1 id="pageTitle">Admin Dashboard</h1>
+                    <p id="pageSubtitle">City-wide waste management overview</p>
+                </div>
+                <div class="top-bar-actions">
+                    <div class="notification-bell" onclick="showNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">8</span>
+                    </div>
+                    <div class="user-dropdown">
+                        <div class="user-avatar">AD</div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 0.9rem;">Admin User</div>
+                            <div style="font-size: 0.8rem; color: var(--gray);">Administrator</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Page -->
+            <div class="page-content active" id="page-dashboard">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalBins">156</h3>
+                            <p>Total Smart Bins</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="operationalBins">142</h3>
+                            <p>Operational</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="alertBins">12</h3>
+                            <p>Need Attention</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="offlineBins">2</h3>
+                            <p>Offline</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>City Waste Map</h2>
+                            <select class="btn btn-outline btn-sm" style="padding: 8px;">
+                                <option>All Bins</option>
+                                <option>Critical</option>
+                                <option>Warning</option>
+                                <option>Normal</option>
+                            </select>
+                        </div>
+                        <div id="adminCityMap" class="map-container" style="height: 450px;"></div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Quick Stats</h2>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: var(--gray-light); border-radius: var(--radius-sm);">
+                                    <span>Daily Collections</span>
+                                    <strong>342</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: var(--gray-light); border-radius: var(--radius-sm);">
+                                    <span>Active Drivers</span>
+                                    <strong>24/28</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: var(--gray-light); border-radius: var(--radius-sm);">
+                                    <span>Avg Fill Level</span>
+                                    <strong>67%</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 10px; background: var(--gray-light); border-radius: var(--radius-sm);">
+                                    <span>Recycling Rate</span>
+                                    <strong>72%</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Smart Alerts</h2>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="padding: 10px; background: rgba(231, 76, 60, 0.1); border-radius: var(--radius-sm); border-left: 3px solid var(--danger);">
+                                    <strong style="font-size: 0.9rem;">Bin #003 Overflow!</strong>
+                                    <p style="font-size: 0.8rem; color: var(--gray);">5 min ago</p>
+                                </div>
+                                <div style="padding: 10px; background: rgba(243, 156, 18, 0.1); border-radius: var(--radius-sm); border-left: 3px solid var(--warning);">
+                                    <strong style="font-size: 0.9rem;">Bin #045 Battery Low</strong>
+                                    <p style="font-size: 0.8rem; color: var(--gray);">15 min ago</p>
+                                </div>
+                                <div style="padding: 10px; background: rgba(52, 152, 219, 0.1); border-radius: var(--radius-sm); border-left: 3px solid var(--secondary);">
+                                    <strong style="font-size: 0.9rem;">Route #3 Delayed</strong>
+                                    <p style="font-size: 0.8rem; color: var(--gray);">30 min ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="card">
+                     <div class="card-header">
+                         <h2>Today's Collection Summary</h2>
+                     </div>
+                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                         <div style="text-align: center; padding: 20px; background: rgba(46, 204, 113, 0.1); border-radius: var(--radius);">
+                             <i class="fas fa-weight-hanging" style="font-size: 2rem; color: var(--primary); margin-bottom: 10px;"></i>
+                             <div style="font-size: 1.5rem; font-weight: 700;">4,250 kg</div>
+                             <div style="font-size: 0.85rem; color: var(--gray);">Total Waste</div>
+                         </div>
+                         <div style="text-align: center; padding: 20px; background: rgba(52, 152, 219, 0.1); border-radius: var(--radius);">
+                             <i class="fas fa-recycle" style="font-size: 2rem; color: var(--secondary); margin-bottom: 10px;"></i>
+                             <div style="font-size: 1.5rem; font-weight: 700;">3,060 kg</div>
+                             <div style="font-size: 0.85rem; color: var(--gray);">Recycled</div>
+                         </div>
+                         <div style="text-align: center; padding: 20px; background: rgba(243, 156, 18, 0.1); border-radius: var(--radius);">
+                             <i class="fas fa-truck" style="font-size: 2rem; color: var(--warning); margin-bottom: 10px;"></i>
+                             <div style="font-size: 1.5rem; font-weight: 700;">342</div>
+                             <div style="font-size: 0.85rem; color: var(--gray);">Pickups Done</div>
+                         </div>
+                         <div style="text-align: center; padding: 20px; background: rgba(231, 76, 60, 0.1); border-radius: var(--radius);">
+                             <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: var(--danger); margin-bottom: 10px;"></i>
+                             <div style="font-size: 1.5rem; font-weight: 700;">8</div>
+                             <div style="font-size: 0.85rem; color: var(--gray);">Issues Reported</div>
+                         </div>
+                     </div>
+                     <div class="chart-container">
+                         <canvas id="adminWasteChart"></canvas>
+                     </div>
+                 </div>
+             </div>
+
+            <!-- Smart Bins Page -->
+            <div class="page-content" id="page-bins">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Smart Bin Monitoring</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <select class="btn btn-outline btn-sm" style="padding: 8px;">
+                                <option>All Bins</option>
+                                <option>Operational</option>
+                                <option>Warning</option>
+                                <option>Critical</option>
+                                <option>Offline</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> Add Bin
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Bin ID</th>
+                                    <th>Location</th>
+                                    <th>Fill Level</th>
+                                    <th>Weight</th>
+                                    <th>Battery</th>
+                                    <th>Status</th>
+                                    <th>Last Update</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>#001</strong></td>
+                                    <td>Main St & 1st Ave</td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div class="progress-bar" style="width: 80px;">
+                                                <div class="progress-fill green" style="width: 45%"></div>
+                                            </div>
+                                            <span>45%</span>
+                                        </div>
+                                    </td>
+                                    <td>12kg/25kg</td>
+                                    <td><span style="color: var(--primary);">85%</span></td>
+                                    <td><span class="status-badge success">Operational</span></td>
+                                    <td>2 min ago</td>
+                                    <td><button class="btn btn-outline btn-sm">Details</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#003</strong></td>
+                                    <td>Oak Road 123</td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div class="progress-bar" style="width: 80px;">
+                                                <div class="progress-fill red" style="width: 95%"></div>
+                                            </div>
+                                            <span>95%</span>
+                                        </div>
+                                    </td>
+                                    <td>24kg/25kg</td>
+                                    <td><span style="color: var(--primary);">92%</span></td>
+                                    <td><span class="status-badge danger">Critical</span></td>
+                                    <td>1 min ago</td>
+                                    <td><button class="btn btn-outline btn-sm">Details</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#007</strong></td>
+                                    <td>Park Ave 456</td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div class="progress-bar" style="width: 80px;">
+                                                <div class="progress-fill orange" style="width: 72%"></div>
+                                            </div>
+                                            <span>72%</span>
+                                        </div>
+                                    </td>
+                                    <td>18kg/25kg</td>
+                                    <td><span style="color: var(--warning);">45%</span></td>
+                                    <td><span class="status-badge warning">Warning</span></td>
+                                    <td>5 min ago</td>
+                                    <td><button class="btn btn-outline btn-sm">Details</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fleet Monitoring Page -->
+            <div class="page-content" id="page-fleet">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-truck-moving"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>24/28</h3>
+                            <p>Active Vehicles</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>18</h3>
+                            <p>On Route</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-gas-pump"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>3</h3>
+                            <p>Refueling</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>1</h3>
+                            <p>In Maintenance</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Fleet Tracking Map</h2>
+                    </div>
+                    <div id="fleetMap" class="map-container" style="height: 400px;"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Driver Status</h2>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Driver</th>
+                                    <th>Vehicle</th>
+                                    <th>Route</th>
+                                    <th>Status</th>
+                                    <th>Collections</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Mike Wilson</td>
+                                    <td>V-001</td>
+                                    <td>Route #3</td>
+                                    <td><span class="status-badge info">On Route</span></td>
+                                    <td>5/8</td>
+                                    <td>Oak Road</td>
+                                </tr>
+                                <tr>
+                                    <td>John Smith</td>
+                                    <td>V-005</td>
+                                    <td>Route #7</td>
+                                    <td><span class="status-badge info">On Route</span></td>
+                                    <td>3/6</td>
+                                    <td>Park Avenue</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div class="page-content" id="page-analytics">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>+12%</h3>
+                            <p>vs Last Month</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-recycle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>72%</h3>
+                            <p>Recycling Rate</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Waste Collection Trends</h2>
+                        <select class="btn btn-outline btn-sm" style="padding: 8px;">
+                            <option>Last 7 Days</option>
+                            <option>Last 30 Days</option>
+                            <option>Last 3 Months</option>
+                            <option>This Year</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="adminAnalyticsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complaints Management Page -->
+            <div class="page-content" id="page-complaints">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Complaint Management</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <select class="btn btn-outline btn-sm" style="padding: 8px;">
+                                <option>All Complaints</option>
+                                <option>Open</option>
+                                <option>In Progress</option>
+                                <option>Resolved</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Location</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>#C-001</strong></td>
+                                    <td>2026-05-06</td>
+                                    <td>Bin Overflow</td>
+                                    <td>Oak Road 123</td>
+                                    <td><span class="status-badge danger">Urgent</span></td>
+                                    <td><span class="status-badge warning">In Progress</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Assign</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#C-002</strong></td>
+                                    <td>2026-05-05</td>
+                                    <td>Missed Pickup</td>
+                                    <td>Main Street 456</td>
+                                    <td><span class="status-badge info">Medium</span></td>
+                                    <td><span class="status-badge info">Open</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm">View</button>
+                                        <button class="btn btn-outline btn-sm">Assign</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Route Optimization Page -->
+            <div class="page-content" id="page-routes">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Route Optimization</h2>
+                        <button class="btn btn-primary btn-sm">
+                            <i class="fas fa-magic"></i> Auto Optimize All
+                        </button>
+                    </div>
+                    <div id="adminRouteMap" class="map-container" style="height: 400px;"></div>
+                    <div style="margin-top: 20px;">
+                        <h3 style="margin-bottom: 15px;">Route Summary</h3>
+                        <div class="route-stats">
+                            <div class="route-stat">
+                                <i class="fas fa-road"></i>
+                                <div>
+                                    <span class="stat-value">245 km</span>
+                                    <span class="stat-label">Total Distance</span>
+                                </div>
+                            </div>
+                            <div class="route-stat">
+                                <i class="fas fa-clock"></i>
+                                <div>
+                                    <span class="stat-value">42 hrs</span>
+                                    <span class="stat-label">Total Time</span>
+                                </div>
+                            </div>
+                            <div class="route-stat">
+                                <i class="fas fa-gas-pump"></i>
+                                <div>
+                                    <span class="stat-value">98L</span>
+                                    <span class="stat-label">Fuel Saved</span>
+                                </div>
+                            </div>
+                            <div class="route-stat">
+                                <i class="fas fa-leaf"></i>
+                                <div>
+                                    <span class="stat-value">230kg</span>
+                                    <span class="stat-label">CO2 Reduced</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Alerts Page -->
+            <div class="page-content" id="page-alerts">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Smart Alerts & Notifications</h2>
+                        <button class="btn btn-outline btn-sm">Configure Alerts</button>
+                    </div>
+                    <div class="alert-list">
+                        <div class="alert-item critical">
+                            <div class="alert-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="alert-content">
+                                <h4>Bin #003 - Overflow Detected!</h4>
+                                <p>Fill level at 95%. Immediate collection required.</p>
+                                <div class="alert-meta">
+                                    <span><i class="fas fa-map-marker-alt"></i> Oak Road 123</span>
+                                    <span><i class="fas fa-clock"></i> 5 minutes ago</span>
+                                </div>
+                            </div>
+                            <div class="alert-actions">
+                                <button class="btn btn-danger btn-sm">Dispatch Now</button>
+                            </div>
+                        </div>
+                        <div class="alert-item warning">
+                            <div class="alert-icon">
+                                <i class="fas fa-battery-quarter"></i>
+                            </div>
+                            <div class="alert-content">
+                                <h4>Bin #045 - Low Battery</h4>
+                                <p>Battery level at 15%. Sensor may go offline soon.</p>
+                                <div class="alert-meta">
+                                    <span><i class="fas fa-map-marker-alt"></i> Park Ave 456</span>
+                                    <span><i class="fas fa-clock"></i> 15 minutes ago</span>
+                                </div>
+                            </div>
+                            <div class="alert-actions">
+                                <button class="btn btn-warning btn-sm">Schedule Maintenance</button>
+                            </div>
+                        </div>
+                        <div class="alert-item info">
+                            <div class="alert-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="alert-content">
+                                <h4>Route #3 - Delayed</h4>
+                                <p>Driver reported traffic congestion on Main Street.</p>
+                                <div class="alert-meta">
+                                    <span><i class="fas fa-user"></i> Mike Wilson</span>
+                                    <span><i class="fas fa-clock"></i> 30 minutes ago</span>
+                                </div>
+                            </div>
+                            <div class="alert-actions">
+                                <button class="btn btn-secondary btn-sm">Reassign Route</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Page -->
+            <div class="page-content" id="page-reports">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Report Generation</h2>
+                    </div>
+                    <div class="report-options">
+                        <div class="report-card" onclick="generateReport('daily')">
+                            <i class="fas fa-file-alt"></i>
+                            <h3>Daily Report</h3>
+                            <p>Collection summary, issues, and metrics for today</p>
+                        </div>
+                        <div class="report-card" onclick="generateReport('weekly')">
+                            <i class="fas fa-calendar-week"></i>
+                            <h3>Weekly Report</h3>
+                            <p>Trends, efficiency, and performance analysis</p>
+                        </div>
+                        <div class="report-card" onclick="generateReport('monthly')">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h3>Monthly Report</h3>
+                            <p>Comprehensive monthly waste management summary</p>
+                        </div>
+                        <div class="report-card" onclick="generateReport('custom')">
+                            <i class="fas fa-sliders-h"></i>
+                            <h3>Custom Report</h3>
+                            <p>Generate reports with custom parameters</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Management Page -->
+            <div class="page-content" id="page-users">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>User Management</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> Add User
+                            </button>
+                            <button class="btn btn-outline btn-sm">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>John Doe</td>
+                                    <td>john@example.com</td>
+                                    <td><span class="status-badge info">Citizen</span></td>
+                                    <td>+1 234 567 8900</td>
+                                    <td><span class="status-badge success">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm">Edit</button>
+                                        <button class="btn btn-danger btn-sm">Disable</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Mike Wilson</td>
+                                    <td>mike@smartbin.com</td>
+                                    <td><span class="status-badge warning">Driver</span></td>
+                                    <td>+1 234 567 8901</td>
+                                    <td><span class="status-badge success">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm">Edit</button>
+                                        <button class="btn btn-danger btn-sm">Disable</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Admin User</td>
+                                    <td>admin@smartbin.com</td>
+                                    <td><span class="status-badge danger">Admin</span></td>
+                                    <td>+1 234 567 8902</td>
+                                    <td><span class="status-badge success">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm">Edit</button>
+                                        <button class="btn btn-danger btn-sm">Disable</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

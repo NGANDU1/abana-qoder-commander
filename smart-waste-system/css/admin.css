@@ -1,0 +1,142 @@
+.alert-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.alert-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border-radius: var(--radius);
+    border-left: 4px solid transparent;
+}
+
+.alert-item.critical {
+    background: rgba(231, 76, 60, 0.1);
+    border-color: var(--danger);
+}
+
+.alert-item.warning {
+    background: rgba(243, 156, 18, 0.1);
+    border-color: var(--warning);
+}
+
+.alert-item.info {
+    background: rgba(52, 152, 219, 0.1);
+    border-color: var(--secondary);
+}
+
+.alert-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.alert-item.critical .alert-icon {
+    background: rgba(231, 76, 60, 0.2);
+    color: var(--danger);
+}
+
+.alert-item.warning .alert-icon {
+    background: rgba(243, 156, 18, 0.2);
+    color: var(--warning);
+}
+
+.alert-item.info .alert-icon {
+    background: rgba(52, 152, 219, 0.2);
+    color: var(--secondary);
+}
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-content h4 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.alert-content p {
+    font-size: 0.85rem;
+    color: var(--dark-light);
+    margin-bottom: 5px;
+}
+
+.alert-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 0.8rem;
+    color: var(--gray);
+}
+
+.alert-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.alert-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-warning {
+    background: var(--warning);
+    color: var(--white);
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.report-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.report-card {
+    background: var(--gray-light);
+    padding: 25px;
+    border-radius: var(--radius);
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.report-card:hover {
+    background: var(--primary);
+    color: var(--white);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.report-card:hover i,
+.report-card:hover p {
+    color: var(--white);
+}
+
+.report-card i {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 15px;
+    display: block;
+}
+
+.report-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.report-card p {
+    font-size: 0.85rem;
+    color: var(--gray);
+}

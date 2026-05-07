@@ -1,0 +1,12 @@
+{% set user = current_user if current_user.is_authenticated else None %}
+{% if user %}
+  {% if not user.is_admin and not user.is_collector %}
+    {% include "_nav_user.html" %}
+  {% elif user.is_collector and not user.is_admin %}
+    {% include "_nav_user.html" %}
+  {% elif user.is_admin %}
+    {% include "_nav_user.html" %}
+  {% endif %}
+{% else %}
+  {% include "_nav_user.html" %}
+{% endif %}

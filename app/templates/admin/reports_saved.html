@@ -1,0 +1,60 @@
+{% extends "shared/layout.html" %}
+{% block title %}Saved Reports{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Saved Reports</h1>
+      <div class="text-muted">Generate and store report snapshots (CRUD-friendly for academic evaluation).</div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-3">
+    <div class="card-body">
+      <h2 class="h6 mb-3">Generate Report</h2>
+      <form class="d-flex gap-2" method="post" action="{{ url_for('admin.saved_reports_generate') }}">
+        <select class="form-select" name="report_type" style="max-width: 220px;">
+          <option value="weekly">Weekly (last 7 days)</option>
+          <option value="daily">Daily (today)</option>
+        </select>
+        <button class="btn btn-success" type="submit">Generate & Save</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin.reports') }}">Back to analytics</a>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Period</th>
+            <th>Generated</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in items %}
+            <tr>
+              <td class="fw-semibold">{{ r.title }}</td>
+              <td><span class="badge text-bg-secondary">{{ r.report_type }}</span></td>
+              <td class="text-muted">{{ r.period_start }} → {{ r.period_end }}</td>
+              <td class="text-muted small">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td class="text-end">
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin.saved_report_detail', report_id=r.id) }}">View</a>
+                <a class="btn btn-sm btn-outline-danger" href="{{ url_for('admin.saved_report_delete', report_id=r.id) }}" onclick="return confirm('Delete this report?')">Delete</a>
+              </td>
+            </tr>
+          {% endfor %}
+          {% if not items %}
+            <tr><td colspan="5" class="text-muted">No saved reports yet.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

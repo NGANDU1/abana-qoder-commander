@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420" role="img" aria-label="Route planning map">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b5b50" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#0b5b50" stop-opacity="0.03"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="24" width="592" height="372" rx="28" fill="url(#bg)"/>
+  <rect x="64" y="72" width="512" height="284" rx="24" fill="#ffffff" opacity="0.92"/>
+
+  <path d="M110 304 C170 250, 190 188, 258 182 C330 176, 352 260, 420 254 C482 248, 504 162, 544 122"
+        fill="none" stroke="#0b5b50" stroke-opacity="0.25" stroke-width="10" stroke-linecap="round"/>
+  <path d="M110 304 C170 250, 190 188, 258 182 C330 176, 352 260, 420 254 C482 248, 504 162, 544 122"
+        fill="none" stroke="#16a34a" stroke-opacity="0.85" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 10"/>
+
+  <circle cx="110" cy="304" r="10" fill="#0b5b50" opacity="0.25"/>
+  <circle cx="110" cy="304" r="7" fill="#16a34a"/>
+
+  <circle cx="258" cy="182" r="10" fill="#0b5b50" opacity="0.25"/>
+  <circle cx="258" cy="182" r="7" fill="#16a34a"/>
+
+  <circle cx="420" cy="254" r="10" fill="#0b5b50" opacity="0.25"/>
+  <circle cx="420" cy="254" r="7" fill="#16a34a"/>
+
+  <circle cx="544" cy="122" r="10" fill="#0b5b50" opacity="0.25"/>
+  <circle cx="544" cy="122" r="7" fill="#16a34a"/>
+
+  <rect x="84" y="92" width="190" height="42" rx="14" fill="#0b5b50" opacity="0.10"/>
+  <text x="100" y="120" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="16" fill="#0b5b50" opacity="0.92">Route Optimization</text>
+
+  <rect x="372" y="300" width="180" height="40" rx="14" fill="#0b5b50" opacity="0.10"/>
+  <text x="388" y="326" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="14" fill="#0b5b50" opacity="0.78">Urgency weighted</text>
+</svg>
+

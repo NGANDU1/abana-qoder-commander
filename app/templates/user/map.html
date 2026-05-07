@@ -1,0 +1,56 @@
+{% extends "shared/dash_layout.html" %}
+{% block title %}Map{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block sidebar %}
+  {% set active = 'map' %}
+  {% include "user/_sidebar.html" %}
+{% endblock %}
+
+{% block dash_content %}
+  <div class="dash-topbar mb-3">
+    <div>
+      <h1 class="h4 mb-1">Bin Map</h1>
+      <div class="text-muted">View bins and quickly open a bin to report issues.</div>
+    </div>
+    <div class="pill text-muted small d-flex align-items-center gap-2">
+      <i class="bi bi-truck"></i>
+      <span class="fw-semibold">{{ active_collectors }} active collectors</span>
+    </div>
+  </div>
+
+  <div class="dash-card p-3">
+    <div id="binsMap" class="map-box" style="height: 520px;"></div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const depot = {{ depot|tojson }};
+    const bins = {{ bins|tojson }};
+
+    const map = L.map('binsMap').setView([depot.lat, depot.lon], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const points = [];
+    bins.forEach(b => {
+      points.push([b.latitude, b.longitude]);
+      const color = (b.status === 'Overflow' || b.status === 'Full') ? '#ef4444' : (b.status === 'Moderate' ? '#f59e0b' : '#0ea5e9');
+      L.circleMarker([b.latitude, b.longitude], { radius: 7, color }).addTo(map)
+        .bindPopup(`<b>${b.bin_code}</b><br>${b.location_name}<br>${b.fill_level}% (${b.status})<br><a href="/bins/${b.id}">Open</a>`);
+    });
+
+    if (points.length) {
+      const bounds = L.latLngBounds(points);
+      map.fitBounds(bounds.pad(0.15));
+    }
+  </script>
+{% endblock %}
+

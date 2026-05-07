@@ -1,0 +1,34 @@
+{% extends "shared/dash_layout.html" %}
+{% block title %}Report {{ b.bin_code }}{% endblock %}
+
+{% block sidebar %}
+  {% set active = 'bins' %}
+  {% include "user/_sidebar.html" %}
+{% endblock %}
+
+{% block dash_content %}
+  <div class="dash-topbar mb-3">
+    <div>
+      <div class="text-muted small">Community report</div>
+      <h1 class="h4 mb-1">Report bin {{ b.bin_code }}</h1>
+      <div class="text-muted">{{ b.location_name }} · {{ b.area or 'Unknown area' }}</div>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('public.bin_detail', bin_id=b.id) }}">Back</a>
+  </div>
+
+  <div class="dash-card p-3" style="max-width: 820px;">
+    <form method="post" action="{{ url_for('public.report_bin_post', bin_id=b.id) }}">
+      <div class="mb-3">
+        <label class="form-label">Estimated fill level (optional)</label>
+        <input class="form-control" type="number" min="0" max="100" name="reported_level" placeholder="e.g., 90">
+        <div class="form-text">If you're not sure, leave it blank and just describe what you see.</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Message (optional)</label>
+        <textarea class="form-control" name="message" rows="3" placeholder="Example: Bin is overflowing and litter is spreading."></textarea>
+      </div>
+      <button class="btn btn-success" type="submit"><i class="bi bi-send me-2"></i>Submit report</button>
+    </form>
+  </div>
+{% endblock %}
+

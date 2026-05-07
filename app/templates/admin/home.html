@@ -1,0 +1,193 @@
+{% extends "shared/dash_layout.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block sidebar %}
+  <div class="dash-brand">
+    <div class="logo"><i class="bi bi-leaf"></i></div>
+    <div>
+      <div class="title">WasteWise</div>
+      <div class="small text-white-50">Waste Management System</div>
+    </div>
+  </div>
+  <nav class="dash-nav nav flex-column gap-1">
+    <a class="nav-link active" href="{{ url_for('admin.admin_home') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+    <div class="text-uppercase small text-white-50 mt-2 px-2">Management</div>
+    <a class="nav-link" href="{{ url_for('admin.users') }}"><i class="bi bi-people"></i> Users</a>
+    <a class="nav-link" href="{{ url_for('admin.trucks') }}"><i class="bi bi-truck"></i> Vehicles</a>
+    <a class="nav-link" href="{{ url_for('admin.bins') }}"><i class="bi bi-trash3"></i> Waste Bins</a>
+    <a class="nav-link" href="{{ url_for('admin.routes_list') }}"><i class="bi bi-map"></i> Routes</a>
+    <div class="text-uppercase small text-white-50 mt-2 px-2">Operations</div>
+    <a class="nav-link" href="{{ url_for('admin.user_reports') }}"><i class="bi bi-megaphone"></i> User Reports</a>
+    <a class="nav-link" href="{{ url_for('admin.alerts') }}"><i class="bi bi-exclamation-triangle"></i> Alerts</a>
+    <a class="nav-link" href="{{ url_for('admin.notifications') }}"><i class="bi bi-bell"></i> Notifications</a>
+    <a class="nav-link" href="{{ url_for('admin.analytics') }}"><i class="bi bi-graph-up"></i> Analytics</a>
+    <a class="nav-link" href="{{ url_for('admin.reports') }}"><i class="bi bi-file-earmark-text"></i> Reports</a>
+    <div class="mt-auto pt-3 px-2">
+      <a class="nav-link" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </div>
+  </nav>
+{% endblock %}
+
+{% block dash_content %}
+  <div class="dash-topbar mb-3">
+    <div>
+      <h1 class="h4 mb-1">Welcome back, Admin!</h1>
+      <div class="text-muted">Here's what's happening with your waste management system today.</div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <div class="pill text-muted small d-flex align-items-center gap-2">
+        <i class="bi bi-calendar3"></i>
+        <span class="fw-semibold">{{ today_str }}</span>
+      </div>
+      <a class="btn btn-outline-success" href="{{ url_for('admin.simulate_get') }}"><i class="bi bi-cpu"></i> Simulate IoT</a>
+      <a class="btn btn-success" href="{{ url_for('admin.routes_new') }}"><i class="bi bi-diagram-3"></i> Generate routes</a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="dash-card p-3 h-100">
+        <div class="dash-metric">
+          <div>
+            <div class="text-muted small">Total Collections</div>
+            <div class="fs-3 fw-semibold">{{ kpis.total_collections }}</div>
+            <div class="small text-muted">Last 30 days used for rankings</div>
+          </div>
+          <div class="icon"><i class="bi bi-recycle"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="dash-card p-3 h-100">
+        <div class="dash-metric">
+          <div>
+            <div class="text-muted small">Active Drivers</div>
+            <div class="fs-3 fw-semibold">{{ kpis.active_drivers }}</div>
+            <div class="small text-muted">Workers registered</div>
+          </div>
+          <div class="icon"><i class="bi bi-people"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="dash-card p-3 h-100">
+        <div class="dash-metric">
+          <div>
+            <div class="text-muted small">Vehicles</div>
+            <div class="fs-3 fw-semibold">{{ kpis.vehicles }}</div>
+            <div class="small text-muted">All vehicles</div>
+          </div>
+          <div class="icon"><i class="bi bi-truck"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="dash-card p-3 h-100">
+        <div class="dash-metric">
+          <div>
+            <div class="text-muted small">Waste Collected (proxy)</div>
+            <div class="fs-3 fw-semibold">{{ kpis.waste_collected_proxy }}</div>
+            <div class="small text-muted">Sum of “before fill level”</div>
+          </div>
+          <div class="icon"><i class="bi bi-trash3"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-xl-8">
+      <div class="dash-card p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fw-semibold">Collections Overview</div>
+          <div class="text-muted small">Last 7 days</div>
+        </div>
+        <div style="height:300px">
+          <canvas id="collectionsChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-xl-4">
+      <div class="dash-card p-3 mb-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fw-semibold">Recent Alerts</div>
+          <a class="small" href="{{ url_for('admin.alerts') }}">View all</a>
+        </div>
+        {% if urgent_alerts %}
+          <div class="list-group list-group-flush">
+            {% for a in urgent_alerts %}
+              <div class="list-group-item px-0">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="fw-semibold">{{ a.bin.bin_code if a.bin else "Bin" }}</div>
+                  <span class="badge text-bg-danger">Active</span>
+                </div>
+                <div class="text-muted small">{{ a.message }}</div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-muted small">No active alerts.</div>
+        {% endif %}
+      </div>
+
+      <div class="dash-card p-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fw-semibold">Top Performing Drivers</div>
+          <a class="small" href="{{ url_for('admin.trucks') }}">View all</a>
+        </div>
+        {% if top_drivers %}
+          <div class="vstack gap-2">
+            {% for d in top_drivers %}
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <div class="fw-semibold">{{ d.name }}</div>
+                  <div class="text-muted small">{{ d.count }} collections</div>
+                </div>
+                <i class="bi bi-award text-warning"></i>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-muted small">No collections yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    const rawLabels = {{ charts.collections_labels|tojson }};
+    const series = {{ charts.collections_series|tojson }};
+    const labels = rawLabels.map(d => {
+      const dt = new Date(d);
+      return Number.isNaN(dt.getTime()) ? d : dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    });
+
+    const ctx = document.getElementById('collectionsChart');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Completed collections',
+            data: series,
+            borderColor: '#0f7b6c',
+            backgroundColor: 'rgba(15,123,108,.12)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 3,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      });
+    }
+  </script>
+{% endblock %}

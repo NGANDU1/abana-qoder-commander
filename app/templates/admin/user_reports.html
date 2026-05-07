@@ -1,0 +1,120 @@
+{% extends "shared/dash_layout.html" %}
+{% block title %}User Reports{% endblock %}
+
+{% block sidebar %}
+  <div class="dash-brand">
+    <div class="logo"><i class="bi bi-leaf"></i></div>
+    <div>
+      <div class="title">WasteWise</div>
+      <div class="small text-white-50">Waste Management System</div>
+    </div>
+  </div>
+  <nav class="dash-nav nav flex-column gap-1">
+    <a class="nav-link" href="{{ url_for('admin.admin_home') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+    <div class="text-uppercase small text-white-50 mt-2 px-2">Management</div>
+    <a class="nav-link" href="{{ url_for('admin.users') }}"><i class="bi bi-people"></i> Users</a>
+    <a class="nav-link" href="{{ url_for('admin.trucks') }}"><i class="bi bi-truck"></i> Vehicles</a>
+    <a class="nav-link" href="{{ url_for('admin.bins') }}"><i class="bi bi-trash3"></i> Waste Bins</a>
+    <a class="nav-link" href="{{ url_for('admin.routes_list') }}"><i class="bi bi-map"></i> Routes</a>
+    <div class="text-uppercase small text-white-50 mt-2 px-2">Operations</div>
+    <a class="nav-link active" href="{{ url_for('admin.user_reports') }}"><i class="bi bi-megaphone"></i> User Reports</a>
+    <a class="nav-link" href="{{ url_for('admin.alerts') }}"><i class="bi bi-exclamation-triangle"></i> Alerts</a>
+    <a class="nav-link" href="{{ url_for('admin.notifications') }}"><i class="bi bi-bell"></i> Notifications</a>
+    <a class="nav-link" href="{{ url_for('admin.analytics') }}"><i class="bi bi-graph-up"></i> Analytics</a>
+    <a class="nav-link" href="{{ url_for('admin.reports') }}"><i class="bi bi-file-earmark-text"></i> Reports</a>
+    <div class="mt-auto pt-3 px-2">
+      <a class="nav-link" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </div>
+  </nav>
+{% endblock %}
+
+{% block dash_content %}
+  <div class="dash-topbar mb-3">
+    <div>
+      <h1 class="h4 mb-1">User Reports</h1>
+      <div class="text-muted">Review report level and send the bin to a driver.</div>
+    </div>
+  </div>
+
+  <form class="row g-2 mb-3" method="get" action="{{ url_for('admin.user_reports') }}">
+    <div class="col-md-3">
+      <select class="form-select" name="status">
+        <option value="" {% if not filters.status %}selected{% endif %}>All status</option>
+        {% for s in ['open','reviewed','completed','dismissed'] %}
+          <option value="{{ s }}" {% if filters.status==s %}selected{% endif %}>{{ s|capitalize }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 d-grid">
+      <button class="btn btn-outline-success" type="submit">Filter</button>
+    </div>
+  </form>
+
+  <div class="dash-card p-0">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Time</th>
+            <th>Bin</th>
+            <th>Reporter</th>
+            <th>Reported level</th>
+            <th>Message</th>
+            <th>Status</th>
+            <th class="text-end">Send to driver</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in reports %}
+            <tr>
+              <td class="text-muted small" style="white-space:nowrap;">{{ r.created_at.strftime('%Y-%m-%d %H:%M') if r.created_at else '' }}</td>
+              <td class="fw-semibold">
+                <a class="text-decoration-none" href="{{ url_for('public.bin_detail', bin_id=r.bin_id) }}">{{ r.bin.bin_code if r.bin else '—' }}</a>
+                <div class="text-muted small">{{ r.bin.location_name if r.bin else '' }}</div>
+              </td>
+              <td class="text-muted small">{{ r.reporter.username if r.reporter else '—' }}</td>
+              <td>
+                {% if r.reported_level is not none %}
+                  <span class="badge text-bg-light border text-dark">{{ r.reported_level }}%</span>
+                {% else %}
+                  <span class="text-muted small">—</span>
+                {% endif %}
+              </td>
+              <td class="text-muted">{{ r.message or '—' }}</td>
+              <td>
+                {% if r.status == 'open' %}
+                  <span class="badge text-bg-warning">Open</span>
+                {% elif r.status == 'reviewed' %}
+                  <span class="badge text-bg-success">Reviewed</span>
+                {% elif r.status == 'completed' %}
+                  <span class="badge text-bg-success">Completed</span>
+                {% elif r.status == 'dismissed' %}
+                  <span class="badge text-bg-secondary">Dismissed</span>
+                {% else %}
+                  <span class="badge text-bg-secondary">{{ r.status }}</span>
+                {% endif %}
+              </td>
+              <td class="text-end" style="min-width: 280px;">
+                <form class="d-flex gap-2 justify-content-end" method="post" action="{{ url_for('admin.user_reports_assign', report_id=r.id) }}">
+                  <select class="form-select form-select-sm" name="driver_id" required>
+                    <option value="" selected disabled>Select driver</option>
+                    {% for d in drivers %}
+                      <option value="{{ d.id }}">{{ d.username }}</option>
+                    {% endfor %}
+                  </select>
+                  <button class="btn btn-sm btn-success" type="submit" {% if r.status != 'open' %}disabled{% endif %}>
+                    Send
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="7" class="text-muted small p-3">No reports found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

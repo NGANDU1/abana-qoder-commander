@@ -1,0 +1,50 @@
+{% extends "shared/layout.html" %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Users</h1>
+      <div class="text-muted">Admin, workers, and user accounts.</div>
+    </div>
+    <a class="btn btn-success" href="{{ url_for('admin.user_create') }}">Add user</a>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Last login</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+            <tr>
+              <td class="fw-semibold">{{ u.username }}</td>
+              <td class="text-muted">{{ u.email or '-' }}</td>
+              <td><span class="badge text-bg-secondary">{{ u.canonical_role }}</span></td>
+              <td>
+                {% if u.is_active %}
+                  <span class="badge text-bg-success">Active</span>
+                {% else %}
+                  <span class="badge text-bg-danger">Disabled</span>
+                {% endif %}
+              </td>
+              <td class="text-muted small">{{ u.last_login_at.strftime('%Y-%m-%d %H:%M') if u.last_login_at else '-' }}</td>
+              <td class="text-end">
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin.user_toggle', user_id=u.id) }}" onclick="return confirm('Toggle this user?')">Toggle</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

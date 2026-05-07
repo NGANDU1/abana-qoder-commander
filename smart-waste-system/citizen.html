@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Dashboard - SmartBin</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/citizen.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-recycle"></i>
+                    <span>SmartBin</span>
+                </div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-label">Main</div>
+                <a href="#" class="menu-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="menu-item" data-page="pickup">
+                    <i class="fas fa-truck"></i>
+                    <span>Pickup Request</span>
+                </a>
+                <a href="#" class="menu-item" data-page="bins">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Smart Bins</span>
+                </a>
+                <a href="#" class="menu-item" data-page="complaint">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Report Issue</span>
+                </a>
+                <a href="#" class="menu-item" data-page="history">
+                    <i class="fas fa-history"></i>
+                    <span>Pickup History</span>
+                </a>
+                <a href="#" class="menu-item" data-page="payment">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Payments</span>
+                </a>
+                <a href="#" class="menu-item" data-page="recycling">
+                    <i class="fas fa-leaf"></i>
+                    <span>Recycling Tips</span>
+                </a>
+                <a href="#" class="menu-item" data-page="notifications">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+                <div class="menu-label">Account</div>
+                <a href="#" class="menu-item" data-page="profile">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="index.html" class="menu-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1 id="pageTitle">Dashboard</h1>
+                    <p id="pageSubtitle">Welcome back, Citizen!</p>
+                </div>
+                <div class="top-bar-actions">
+                    <div class="notification-bell" onclick="showNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                    <div class="user-dropdown">
+                        <div class="user-avatar">JD</div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 0.9rem;">John Doe</div>
+                            <div style="font-size: 0.8rem; color: var(--gray);">Citizen</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Page -->
+            <div class="page-content active" id="page-dashboard">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalPickups">12</h3>
+                            <p>Total Pickups</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="nextPickup">2</h3>
+                            <p>Days to Next Pickup</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-weight-hanging"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalWeight">145kg</h3>
+                            <p>Waste Collected</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="recycleRate">68%</h3>
+                            <p>Recycling Rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Nearby Smart Bins</h2>
+                        <button class="btn btn-outline btn-sm" onclick="showPage('bins')">
+                            <i class="fas fa-eye"></i> View All
+                        </button>
+                    </div>
+                    <div class="bins-grid">
+                        <div class="bin-card">
+                            <div class="bin-header">
+                                <h4>Bin #001 - Main St</h4>
+                                <span class="status-badge success">Operational</span>
+                            </div>
+                            <div class="bin-level">
+                                <div class="level-info">
+                                    <span>Fill Level</span>
+                                    <span class="level-value">45%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill green" style="width: 45%"></div>
+                                </div>
+                            </div>
+                            <div class="bin-details">
+                                <span><i class="fas fa-weight-hanging"></i> 12kg/25kg</span>
+                                <span><i class="fas fa-map-marker-alt"></i> 0.3km away</span>
+                            </div>
+                        </div>
+                        <div class="bin-card">
+                            <div class="bin-header">
+                                <h4>Bin #002 - Park Ave</h4>
+                                <span class="status-badge warning">Filling</span>
+                            </div>
+                            <div class="bin-level">
+                                <div class="level-info">
+                                    <span>Fill Level</span>
+                                    <span class="level-value">72%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill orange" style="width: 72%"></div>
+                                </div>
+                            </div>
+                            <div class="bin-details">
+                                <span><i class="fas fa-weight-hanging"></i> 18kg/25kg</span>
+                                <span><i class="fas fa-map-marker-alt"></i> 0.8km away</span>
+                            </div>
+                        </div>
+                        <div class="bin-card">
+                            <div class="bin-header">
+                                <h4>Bin #003 - Oak Road</h4>
+                                <span class="status-badge danger">Full</span>
+                            </div>
+                            <div class="bin-level">
+                                <div class="level-info">
+                                    <span>Fill Level</span>
+                                    <span class="level-value">95%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill red" style="width: 95%"></div>
+                                </div>
+                            </div>
+                            <div class="bin-details">
+                                <span><i class="fas fa-weight-hanging"></i> 24kg/25kg</span>
+                                <span><i class="fas fa-map-marker-alt"></i> 1.2km away</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Waste Collection Analytics</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="wasteChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Recent Pickups</h2>
+                        <button class="btn btn-outline btn-sm" onclick="showPage('history')">View All</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Location</th>
+                                    <th>Waste Type</th>
+                                    <th>Weight</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2026-05-04</td>
+                                    <td>Main Street 123</td>
+                                    <td>General Waste</td>
+                                    <td>8.5 kg</td>
+                                    <td><span class="status-badge success">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-02</td>
+                                    <td>Main Street 123</td>
+                                    <td>Recyclables</td>
+                                    <td>5.2 kg</td>
+                                    <td><span class="status-badge success">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-04-30</td>
+                                    <td>Main Street 123</td>
+                                    <td>Organic Waste</td>
+                                    <td>3.8 kg</td>
+                                    <td><span class="status-badge success">Completed</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pickup Request Page -->
+            <div class="page-content" id="page-pickup">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Request Waste Pickup</h2>
+                    </div>
+                    <form id="pickupForm" onsubmit="submitPickup(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Waste Type</label>
+                                <select id="wasteType" required>
+                                    <option value="">Select waste type</option>
+                                    <option value="general">General Waste</option>
+                                    <option value="recyclable">Recyclable</option>
+                                    <option value="organic">Organic Waste</option>
+                                    <option value="hazardous">Hazardous Waste</option>
+                                    <option value="bulk">Bulk Waste</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Estimated Weight (kg)</label>
+                                <input type="number" id="wasteWeight" placeholder="Enter weight" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Pickup Address</label>
+                            <input type="text" id="pickupAddress" value="Main Street 123, City" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Preferred Date</label>
+                            <input type="date" id="pickupDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Preferred Time Slot</label>
+                            <select id="pickupTime" required>
+                                <option value="">Select time slot</option>
+                                <option value="morning">Morning (8AM - 12PM)</option>
+                                <option value="afternoon">Afternoon (12PM - 4PM)</option>
+                                <option value="evening">Evening (4PM - 8PM)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Special Instructions</label>
+                            <textarea id="pickupNotes" rows="3" placeholder="Any special instructions for the collector..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Request
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Smart Bins Page -->
+            <div class="page-content" id="page-bins">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Smart Bin Monitoring</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <select class="btn btn-outline btn-sm" style="padding: 8px;">
+                                <option>All Bins</option>
+                                <option>Operational</option>
+                                <option>Filling</option>
+                                <option>Full</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="citizenMap" class="map-container" style="margin-bottom: 20px; height: 400px;"></div>
+                    <div class="bins-grid">
+                        <div class="bin-card detailed">
+                            <div class="bin-header">
+                                <h4><i class="fas fa-trash-alt"></i> Bin #001 - Main St</h4>
+                                <span class="status-badge success">Operational</span>
+                            </div>
+                            <div class="bin-sensor-data">
+                                <div class="sensor-item">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    <div>
+                                        <span class="sensor-label">Fill Level</span>
+                                        <div class="progress-bar" style="margin-top: 5px;">
+                                            <div class="progress-fill green" style="width: 45%"></div>
+                                        </div>
+                                        <span class="sensor-value">45%</span>
+                                    </div>
+                                </div>
+                                <div class="sensor-item">
+                                    <i class="fas fa-weight-hanging"></i>
+                                    <div>
+                                        <span class="sensor-label">Weight</span>
+                                        <span class="sensor-value">12 kg / 25 kg</span>
+                                    </div>
+                                </div>
+                                <div class="sensor-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <div>
+                                        <span class="sensor-label">Location</span>
+                                        <span class="sensor-value">40.7128° N, 74.0060° W</span>
+                                    </div>
+                                </div>
+                                <div class="sensor-item">
+                                    <i class="fas fa-battery-three-quarters"></i>
+                                    <div>
+                                        <span class="sensor-label">Battery</span>
+                                        <span class="sensor-value" style="color: var(--primary);">85%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bin-last-update">
+                                <i class="fas fa-clock"></i> Last updated: 2 minutes ago
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complaint Page -->
+            <div class="page-content" id="page-complaint">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Report an Issue</h2>
+                    </div>
+                    <form id="complaintForm" onsubmit="submitComplaint(event)">
+                        <div class="form-group">
+                            <label>Issue Type</label>
+                            <select id="issueType" required>
+                                <option value="">Select issue type</option>
+                                <option value="overflow">Bin Overflow</option>
+                                <option value="damaged">Damaged Bin</option>
+                                <option value="missed">Missed Pickup</option>
+                                <option value="illegal">Illegal Dumping</option>
+                                <option value="odor">Bad Odor</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="issueLocation" placeholder="Enter location or select on map" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="issueDescription" rows="4" placeholder="Describe the issue in detail..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Upload Photo</label>
+                            <div class="upload-area" onclick="document.getElementById('photoUpload').click()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click to upload or drag and drop</p>
+                                <span>JPG, PNG (max 5MB)</span>
+                                <input type="file" id="photoUpload" accept="image/*" hidden onchange="previewPhoto(event)">
+                            </div>
+                            <div id="photoPreview" style="margin-top: 10px;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Priority</label>
+                            <select id="issuePriority" required>
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Report
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- History Page -->
+            <div class="page-content" id="page-history">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Pickup History</h2>
+                        <button class="btn btn-outline btn-sm">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Location</th>
+                                    <th>Waste Type</th>
+                                    <th>Weight</th>
+                                    <th>Driver</th>
+                                    <th>Status</th>
+                                    <th>Receipt</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2026-05-04</td>
+                                    <td>10:30 AM</td>
+                                    <td>Main Street 123</td>
+                                    <td>General Waste</td>
+                                    <td>8.5 kg</td>
+                                    <td>Mike Wilson</td>
+                                    <td><span class="status-badge success">Completed</span></td>
+                                    <td><button class="btn btn-outline btn-sm"><i class="fas fa-download"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-02</td>
+                                    <td>2:15 PM</td>
+                                    <td>Main Street 123</td>
+                                    <td>Recyclables</td>
+                                    <td>5.2 kg</td>
+                                    <td>John Smith</td>
+                                    <td><span class="status-badge success">Completed</span></td>
+                                    <td><button class="btn btn-outline btn-sm"><i class="fas fa-download"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-04-30</td>
+                                    <td>11:45 AM</td>
+                                    <td>Main Street 123</td>
+                                    <td>Organic Waste</td>
+                                    <td>3.8 kg</td>
+                                    <td>Mike Wilson</td>
+                                    <td><span class="status-badge success">Completed</span></td>
+                                    <td><button class="btn btn-outline btn-sm"><i class="fas fa-download"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-04-28</td>
+                                    <td>9:20 AM</td>
+                                    <td>Main Street 123</td>
+                                    <td>Bulk Waste</td>
+                                    <td>15.0 kg</td>
+                                    <td>John Smith</td>
+                                    <td><span class="status-badge success">Completed</span></td>
+                                    <td><button class="btn btn-outline btn-sm"><i class="fas fa-download"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Page -->
+            <div class="page-content" id="page-payment">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>$45.50</h3>
+                            <p>Current Balance</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Paid</h3>
+                            <p>Last Payment</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Make Payment</h2>
+                    </div>
+                    <form id="paymentForm" onsubmit="processPayment(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Payment Method</label>
+                                <select id="paymentMethod" required>
+                                    <option value="">Select method</option>
+                                    <option value="card">Credit/Debit Card</option>
+                                    <option value="paypal">PayPal</option>
+                                    <option value="mobile">Mobile Money</option>
+                                    <option value="bank">Bank Transfer</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Amount ($)</label>
+                                <input type="number" id="paymentAmount" value="45.50" step="0.01" required>
+                            </div>
+                        </div>
+                        <div id="cardDetails">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Card Number</label>
+                                    <input type="text" placeholder="1234 5678 9012 3456">
+                                </div>
+                                <div class="form-group">
+                                    <label>Cardholder Name</label>
+                                    <input type="text" placeholder="John Doe">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Expiry Date</label>
+                                    <input type="text" placeholder="MM/YY">
+                                </div>
+                                <div class="form-group">
+                                    <label>CVV</label>
+                                    <input type="text" placeholder="123">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-lock"></i> Pay Securely
+                        </button>
+                    </form>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Payment History</h2>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Transaction ID</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2026-05-01</td>
+                                    <td>$45.50</td>
+                                    <td>Credit Card</td>
+                                    <td>TXN-001234</td>
+                                    <td><span class="status-badge success">Paid</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-04-01</td>
+                                    <td>$42.00</td>
+                                    <td>PayPal</td>
+                                    <td>TXN-001198</td>
+                                    <td><span class="status-badge success">Paid</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recycling Tips Page -->
+            <div class="page-content" id="page-recycling">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Recycling Tips & Education</h2>
+                    </div>
+                    <div class="tips-grid">
+                        <div class="tip-card">
+                            <div class="tip-icon" style="background: #e8f5e9; color: var(--primary);">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            <h3>Paper & Cardboard</h3>
+                            <ul>
+                                <li>Remove any plastic wrapping</li>
+                                <li>Flatten boxes to save space</li>
+                                <li>Keep paper dry and clean</li>
+                                <li>No greasy pizza boxes</li>
+                            </ul>
+                        </div>
+                        <div class="tip-card">
+                            <div class="tip-icon" style="background: #e3f2fd; color: var(--secondary);">
+                                <i class="fas fa-wine-bottle"></i>
+                            </div>
+                            <h3>Plastic & Glass</h3>
+                            <ul>
+                                <li>Rinse containers before recycling</li>
+                                <li>Remove lids and caps</li>
+                                <li>Don't mix different plastic types</li>
+                                <li>Check recycling numbers</li>
+                            </ul>
+                        </div>
+                        <div class="tip-card">
+                            <div class="tip-icon" style="background: #fff3e0; color: var(--warning);">
+                                <i class="fas fa-apple-alt"></i>
+                            </div>
+                            <h3>Organic Waste</h3>
+                            <ul>
+                                <li>Use compostable bags only</li>
+                                <li>Include fruit and vegetable scraps</li>
+                                <li>No meat or dairy products</li>
+                                <li>Keep bin covered and clean</li>
+                            </ul>
+                        </div>
+                        <div class="tip-card">
+                            <div class="tip-icon" style="background: #fce4ec; color: var(--danger);">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h3>Hazardous Waste</h3>
+                            <ul>
+                                <li>Never mix with regular waste</li>
+                                <li>Use designated drop-off points</li>
+                                <li>Keep in original containers</li>
+                                <li>Label clearly if repackaged</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Page -->
+            <div class="page-content" id="page-notifications">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Notifications</h2>
+                        <button class="btn btn-outline btn-sm" onclick="markAllRead()">Mark All Read</button>
+                    </div>
+                    <div class="notification-list">
+                        <div class="notification-item unread">
+                            <div class="notification-icon alert">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h4>Bin #003 is almost full!</h4>
+                                <p>Bin at Oak Road has reached 95% capacity. Schedule pickup soon.</p>
+                                <div class="notification-time">5 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="notification-item unread">
+                            <div class="notification-icon info">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h4>Pickup Scheduled</h4>
+                                <p>Your waste pickup has been scheduled for tomorrow at 10:00 AM.</p>
+                                <div class="notification-time">1 hour ago</div>
+                            </div>
+                        </div>
+                        <div class="notification-item unread">
+                            <div class="notification-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h4>Payment Successful</h4>
+                                <p>Your payment of $45.50 has been processed successfully.</p>
+                                <div class="notification-time">2 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="notification-item">
+                            <div class="notification-icon info">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h4>Recycling Milestone!</h4>
+                                <p>Congratulations! You've recycled 50kg this month. Keep it up!</p>
+                                <div class="notification-time">1 day ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div class="page-content" id="page-profile">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>My Profile</h2>
+                    </div>
+                    <form id="profileForm">
+                        <div style="display: flex; gap: 30px; margin-bottom: 30px; flex-wrap: wrap;">
+                            <div style="text-align: center;">
+                                <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 15px;">
+                                    JD
+                                </div>
+                                <button class="btn btn-outline btn-sm">Change Photo</button>
+                            </div>
+                            <div style="flex: 1; min-width: 250px;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>First Name</label>
+                                        <input type="text" value="John" id="profileFirstName">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Last Name</label>
+                                        <input type="text" value="Doe" id="profileLastName">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" value="john.doe@example.com" id="profileEmail">
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone</label>
+                                    <input type="tel" value="+1 234 567 8900" id="profilePhone">
+                                </div>
+                                <div class="form-group">
+                                    <label>Address</label>
+                                    <input type="text" value="Main Street 123, City" id="profileAddress">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/citizen.js"></script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+{% extends "_layout.html" %}
+{% block title %}Pickup Confirmation{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Pickup Confirmation</h1>
+      <div class="text-muted">Confirm completion of waste collection for this bin.</div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <div class="sw-card p-4">
+        <div class="text-center mb-4">
+          <div class="display-1 fw-bold text-success mb-2">{{ assignment.status|upper }}</div>
+          <div class="text-muted">{{ assignment.bin_code }} • {{ assignment.service_type|title }} Collection</div>
+        </div>
+        
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-3">
+                <h5 class="fw-semibold mb-2"><i class="bi bi-bin me-2"></i> Bin Information</h5>
+                <div class="fw-semibold">{{ assignment.bin_code }}</div>
+                <div class="text-muted small mt-1">{{ assignment.location_name }}</div>
+                <div class="text-muted small">{{ assignment.address }}</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-3">
+                <h5 class="fw-semibold mb-2"><i class="bi bi-geo-alt me-2"></i> Location Details</h5>
+                <div class="fw-semibold">{{ assignment.location_name }}</div>
+                <div class="text-muted small mt-1">{{ assignment.address }}</div>
+                <div class="text-muted small">{{ assignment.coordinates }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-3">
+                <h5 class="fw-semibold mb-2"><i class="bi bi-droplet-half me-2"></i> Fill Level</h5>
+                <div class="progress mb-2" style="height: 12px;">
+                  <div class="progress-bar bg-{{ 'danger' if assignment.fill_level >= 90 else 'warning' if assignment.fill_level >= 70 else 'success' }}" role="progressbar" style="width: {{ assignment.fill_level }}%" aria-valuenow="{{ assignment.fill_level }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted small">0%</span>
+                  <span class="fw-semibold">{{ assignment.fill_level }}%</span>
+                  <span class="text-muted small">100%</span>
+                </div>
+                <div class="text-muted small mt-2">{{ assignment.fill_status|title }} (before collection)</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-3">
+                <h5 class="fw-semibold mb-2"><i class="bi bi-droplet-fill me-2"></i> After Collection</h5>
+                <div class="progress mb-2" style="height: 12px;">
+                  <div class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted small">0%</span>
+                  <span class="fw-semibold">0%</span>
+                  <span class="text-muted small">100%</span>
+                </div>
+                <div class="text-muted small mt-2">Bin emptied successfully</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <h4 class="fw-semibold mb-3">Confirmation Details</h4>
+          
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="collectionTime" class="form-label">Collection Time</label>
+                <input type="time" class="form-control" id="collectionTime" name="collection_time" value="{{ now|time('%H:%M') }}" required>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="collectionDate" class="form-label">Collection Date</label>
+                <input type="date" class="form-control" id="collectionDate" name="collection_date" value="{{ now|date('%Y-%m-%d') }}" required>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="notes" class="form-label">Notes (optional)</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any issues, special observations, or additional information..."></textarea>
+          </div>
+          
+          <div class="alert alert-info p-3">
+            <div class="fw-semibold mb-1"><i class="bi bi-info-circle me-2"></i> Important Information</div>
+            <ul class="mb-0 text-muted small">
+              <li>This confirms the bin has been emptied and is ready for reuse</li>
+              <li>The system will update the fill level to 0% and reset the collection timer</li>
+              <li>Notes will be saved for quality control and reporting</li>
+              <li>This action cannot be undone</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn btn-success btn-lg px-4">
+            <i class="bi bi-check-circle me-2"></i> Confirm Pickup Completion
+          </button>
+          <a href="{{ url_for('driver.assigned_pickups') }}" class="btn btn-outline-secondary btn-lg px-4">Cancel</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="sw-card p-4 h-100">
+        <h4 class="fw-semibold mb-3">QR Code Scan</h4>
+        
+        <div class="mb-4">
+          <div class="border rounded-3 p-4 text-center bg-light">
+            <i class="bi bi-qr-code fs-2 text-muted mb-2"></i>
+            <p class="text-muted mb-2">Scan the QR code on the bin to confirm collection</p>
+            <button type="button" class="btn btn-primary btn-sm">
+              <i class="bi bi-camera me-1"></i> Use Camera
+            </button>
+            <p class="text-muted small mt-2">Or enter bin ID manually below</p>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <label for="binId" class="form-label">Bin ID</label>
+          <input type="text" class="form-control" id="binId" name="bin_id" value="{{ assignment.bin_id }}" readonly>
+        </div>
+        
+        <div class="mb-4">
+          <h5 class="fw-semibold mb-2">Bin Status History</h5>
+          <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex justify-content-between">
+              <span>Last Collected</span>
+              <span class="fw-semibold">{{ assignment.last_collected|date('%b %d') }}</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between">
+              <span>Collection Frequency</span>
+              <span class="fw-semibold">{{ assignment.frequency }}</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between">
+              <span>Next Scheduled</span>
+              <span class="fw-semibold">{{ assignment.next_scheduled|date('%b %d') }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="alert alert-warning p-3">
+          <div class="fw-semibold mb-1"><i class="bi bi-exclamation-triangle me-2"></i> Support</div>
+          <p class="mb-0 text-muted small">Need help? Contact dispatch at <a href="tel:+1234567890" class="text-decoration-none">(123) 456-7890</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Form submission handling
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // In a real implementation, this would submit to the backend
+        alert('Pickup confirmed successfully! The bin status has been updated in the system.');
+        window.location.href = '{{ url_for('driver.assigned_pickups') }}';
+      });
+    }
+  });
+</script>
+{% endblock %}

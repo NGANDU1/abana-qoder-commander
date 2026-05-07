@@ -1,0 +1,68 @@
+{% extends "_layout.html" %}
+{% block title %}Features{% endblock %}
+{% block content %}
+<section class="container py-5">
+  <div class="text-center mb-5">
+    <h1 class="display-5 sw-section-title">Features</h1>
+    <p class="sw-section-sub">Everything you need to monitor bins, respond faster, and optimize collection routes.</p>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="sw-feature-card p-4 h-100 text-center">
+        <div class="sw-feature-icon"><i class="bi bi-broadcast"></i></div>
+        <h2 class="h5 fw-bold mb-2">Smart Bin Monitoring</h2>
+        <p class="text-muted mb-0">Fill levels update via simulation or API; thresholds automatically set status.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="sw-feature-card p-4 h-100 text-center">
+        <div class="sw-feature-icon"><i class="bi bi-bell"></i></div>
+        <h2 class="h5 fw-bold mb-2">Alerts & Notifications</h2>
+        <p class="text-muted mb-0">Full/Overflow bins trigger alerts plus simulated email/SMS/system logs.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="sw-feature-card p-4 h-100 text-center">
+        <div class="sw-feature-icon"><i class="bi bi-truck"></i></div>
+        <h2 class="h5 fw-bold mb-2">Route Optimization</h2>
+        <p class="text-muted mb-0">Urgency-weighted greedy routing prioritizes hotspots while reducing travel distance.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="sw-feature-card p-4 h-100 text-center">
+        <div class="sw-feature-icon"><i class="bi bi-map"></i></div>
+        <h2 class="h5 fw-bold mb-2">Live Map</h2>
+        <p class="text-muted mb-0">Leaflet map with bin markers and real-time user location (browser GPS).</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="sw-feature-card p-4 h-100 text-center">
+        <div class="sw-feature-icon"><i class="bi bi-megaphone"></i></div>
+        <h2 class="h5 fw-bold mb-2">Community Reporting</h2>
+        <p class="text-muted mb-0">Public users can report bins that appear full/overflowing to support faster response.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="sw-feature-card p-4 h-100 text-center">
+        <div class="sw-feature-icon"><i class="bi bi-graph-up"></i></div>
+        <h2 class="h5 fw-bold mb-2">Analytics</h2>
+        <p class="text-muted mb-0">Charts and saved reports help track performance and identify waste hotspots.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sw-soft-panel p-4 p-lg-5 mt-5">
+    <div class="row g-3 align-items-center">
+      <div class="col-lg-8">
+        <h2 class="h4 fw-bold mb-2 text-brand">Access the dashboard</h2>
+        <p class="text-muted mb-0">Login is required to access the dashboard and the live map.</p>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <a class="btn btn-success" href="{{ url_for('auth.register') }}">Sign up</a>
+        <a class="btn btn-outline-success ms-2" href="{{ url_for('auth.login') }}">Login</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

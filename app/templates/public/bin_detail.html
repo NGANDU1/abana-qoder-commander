@@ -1,0 +1,146 @@
+{% extends "shared/layout.html" %}
+{% block title %}{{ b.bin_code }}{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+      <div class="text-muted small">Smart bin</div>
+      <h1 class="h3 mb-1">{{ b.bin_code }} — {{ b.location_name }}</h1>
+      <div class="text-muted">Area: {{ b.area or 'Unknown' }} · Waste type: {{ b.waste_type }}</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{{ url_for('public.bins') }}"><i class="bi bi-arrow-left me-2"></i>Back</a>
+      {% if current_user.is_authenticated and (current_user.is_admin or current_user.is_collector) %}
+        <a class="btn btn-success" href="{{ url_for('admin.bin_update_level', bin_id=b.id) }}"><i class="bi bi-sliders me-2"></i>Update level</a>
+      {% endif %}
+      {% if current_user.is_authenticated and current_user.canonical_role=='user' %}
+        <a class="btn btn-outline-success" href="{{ url_for('public.report_bin_get', bin_id=b.id) }}"><i class="bi bi-megaphone me-2"></i>Report</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="fw-semibold">Current status</div>
+            <div class="text-muted small">Updated {{ b.last_updated_at.strftime('%Y-%m-%d %H:%M') }}</div>
+          </div>
+          <div class="mb-3">
+            <div class="progress" role="progressbar" aria-label="fill level" aria-valuenow="{{ b.fill_level }}" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar {% if b.status in ['Full','Overflow'] %}bg-danger{% elif b.status=='Moderate' %}bg-warning{% else %}bg-info{% endif %}" style="width: {{ b.fill_level }}%">{{ b.fill_level }}%</div>
+            </div>
+          </div>
+          <div>
+            <span class="badge {% if b.status=='Overflow' %}badge-status-overflow{% elif b.status=='Full' %}badge-status-full{% elif b.status=='Moderate' %}badge-status-moderate{% else %}badge-status-empty{% endif %}">{{ b.status }}</span>
+          </div>
+
+          <hr>
+          <div class="fw-semibold mb-2">Active alerts</div>
+          {% if active_alerts %}
+            <div class="list-group list-group-flush">
+              {% for a in active_alerts %}
+                <div class="list-group-item px-0">
+                  <div class="fw-semibold">{{ a.level }}</div>
+                  <div class="text-muted small">{{ a.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                  <div class="text-muted small">{{ a.message }}</div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-muted small">No active alerts for this bin.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="fw-semibold">Fill level trend</div>
+            <div class="text-muted small">Last {{ history|length }} readings</div>
+          </div>
+          <canvas id="trendChart" height="120"></canvas>
+          <div class="text-muted small mt-2">Readings are stored in `sensor_readings` (source: sim/manual/api).</div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="fw-semibold">Location</div>
+            <div class="text-muted small">{{ '%.5f'|format(b.latitude) }}, {{ '%.5f'|format(b.longitude) }}</div>
+          </div>
+          <div id="miniMap" class="map-box" style="height: 320px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mt-3">
+    <div class="card-body">
+      <div class="fw-semibold mb-2">Alert history (recent)</div>
+      {% if recent_alerts %}
+        <div class="table-responsive">
+          <table class="table table-sm mb-0">
+            <thead><tr><th>Level</th><th>Created</th><th>Status</th></tr></thead>
+            <tbody>
+              {% for a in recent_alerts %}
+                <tr>
+                  <td>{{ a.level }}</td>
+                  <td class="text-muted">{{ a.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                  <td class="text-muted">{{ 'Active' if a.is_active else 'Resolved' }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="text-muted small">No alerts yet.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const history = {{ history|tojson }};
+    const labels = history.map(x => x.t);
+    const series = history.map(x => x.fill);
+    const tctx = document.getElementById('trendChart');
+    new Chart(tctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Fill %',
+          data: series,
+          borderColor: '#0f7b6c',
+          backgroundColor: 'rgba(15,123,108,.12)',
+          fill: true,
+          tension: 0.25,
+          pointRadius: 2
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { min: 0, max: 100, ticks: { stepSize: 20 } } }
+      }
+    });
+
+    const map = L.map('miniMap').setView([{{ b.latitude }}, {{ b.longitude }}], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    L.marker([{{ b.latitude }}, {{ b.longitude }}]).addTo(map)
+      .bindPopup(`<b>{{ b.bin_code }}</b><br>{{ b.location_name }}<br>Fill: {{ b.fill_level }}%<br>Status: {{ b.status }}`);
+  </script>
+{% endblock %}

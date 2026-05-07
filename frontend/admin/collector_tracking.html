@@ -1,0 +1,274 @@
+{% extends "_layout.html" %}
+{% block title %}Collector Tracking{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Collector Tracking</h1>
+      <div class="text-muted">Real-time tracking of waste collection drivers and trucks.</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-success" href="{{ url_for('admin.trucks') }}"><i class="bi bi-truck me-2"></i>Trucks</a>
+      <a class="btn btn-outline-success" href="{{ url_for('admin.routes_list') }}"><i class="bi bi-map me-2"></i>Routes</a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8">
+      <div class="sw-card p-4 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="fw-semibold">Live Collector Map</div>
+          <div class="text-muted small">{{ collectors|length }} active collectors • {{ stats.active_trucks }} trucks</div>
+        </div>
+        
+        <div id="collectorMap" class="map-box" style="height: 520px;"></div>
+        
+        <div class="mt-3">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="fw-semibold">Filter Options</div>
+            <button class="btn btn-outline-secondary btn-sm" id="refreshCollectorsBtn"><i class="bi bi-arrow-clockwise me-1"></i> Refresh</button>
+          </div>
+          
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="statusFilter" class="form-label">Status</label>
+              <select class="form-select" id="statusFilter" name="status_filter">
+                <option value="all">All Statuses</option>
+                <option value="online">Online</option>
+                <option value="offline">Offline</option>
+                <option value="in_progress">In Progress</option>
+                <option value="idle">Idle</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="truckFilter" class="form-label">Truck Type</label>
+              <select class="form-select" id="truckFilter" name="truck_filter">
+                <option value="all">All Types</option>
+                <option value="standard">Standard</option>
+                <option value="compactor">Compactor</option>
+                <option value="recycling">Recycling</option>
+                <option value="hazardous">Hazardous</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="routeFilter" class="form-label">Route</label>
+              <select class="form-select" id="routeFilter" name="route_filter">
+                <option value="all">All Routes</option>
+                <option value="r001">Route 001 - Downtown</option>
+                <option value="r002">Route 002 - North</option>
+                <option value="r003">Route 003 - South</option>
+                <option value="r004">Route 004 - East</option>
+                <option value="r005">Route 005 - West</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="sw-card p-4 h-100">
+        <h4 class="fw-semibold mb-3">Collector Statistics</h4>
+        
+        <div class="mb-4">
+          <div class="d-flex justify-content-between mb-3">
+            <div class="text-muted">Total Collectors</div>
+            <div class="fw-semibold">{{ stats.total_collectors }}</div>
+          </div>
+          <div class="d-flex justify-content-between mb-3">
+            <div class="text-muted">Active Today</div>
+            <div class="fw-semibold text-success">{{ stats.active_today }}</div>
+          </div>
+          <div class="d-flex justify-content-between mb-3">
+            <div class="text-muted">Offline</div>
+            <div class="fw-semibold text-warning">{{ stats.offline_collectors }}</div>
+          </div>
+          <div class="d-flex justify-content-between mb-3">
+            <div class="text-muted">In Progress</div>
+            <div class="fw-semibold text-info">{{ stats.in_progress_collectors }}</div>
+          </div>
+          <div class="d-flex justify-content-between mb-3">
+            <div class="text-muted">Idle</div>
+            <div class="fw-semibold text-secondary">{{ stats.idle_collectors }}</div>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <h5 class="fw-semibold mb-2">Performance Metrics</h5>
+          <div class="progress mb-2" style="height: 6px;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: {{ stats.completion_rate }}%" aria-valuenow="{{ stats.completion_rate }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted small">Completion Rate</span>
+            <span class="fw-semibold">{{ stats.completion_rate }}%</span>
+          </div>
+          
+          <div class="progress mb-2 mt-3" style="height: 6px;">
+            <div class="progress-bar bg-info" role="progressbar" style="width: {{ stats.on_time_rate }}%" aria-valuenow="{{ stats.on_time_rate }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted small">On-time Rate</span>
+            <span class="fw-semibold">{{ stats.on_time_rate }}%</span>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <h5 class="fw-semibold mb-2">Top Performing Collectors</h5>
+          <div class="list-group list-group-flush">
+            {% for collector in top_collectors[:3] %}
+              <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-semibold">{{ collector.name }}</div>
+                  <div class="text-muted small">{{ collector.truck_id }} • {{ collector.route_code }}</div>
+                </div>
+                <div class="fw-semibold text-success">{{ collector.performance }}%</div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        
+        <div class="alert alert-info p-3">
+          <div class="fw-semibold mb-1"><i class="bi bi-info-circle me-2"></i> Tracking Info</div>
+          <ul class="mb-0 text-muted small">
+            <li>Collectors update location every 30 seconds</li>
+            <li>Offline status triggers after 5 minutes of no updates</li>
+            <li>Performance metrics are calculated daily</li>
+            <li>Route assignments are updated in real-time</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12">
+      <div class="sw-card sw-kpi p-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fw-semibold">Active Collectors</div>
+          <a class="small text-decoration-none" href="{{ url_for('admin.collectors') }}">View all collectors</a>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Collector</th>
+                <th>Truck</th>
+                <th>Route</th>
+                <th>Status</th>
+                <th>Location</th>
+                <th>Last Update</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for collector in collectors[:10] %}
+                <tr>
+                  <td class="fw-semibold">{{ collector.name }}</td>
+                  <td>{{ collector.truck_id }}</td>
+                  <td>{{ collector.route_code }}</td>
+                  <td><span class="badge bg-{{ 'success' if collector.status == 'online' else 'info' if collector.status == 'in_progress' else 'warning' if collector.status == 'offline' else 'secondary' }}">{{ collector.status|title }}</span></td>
+                  <td>{{ collector.location_name }}</td>
+                  <td>{{ collector.last_update|time('%I:%M %p') }}</td>
+                  <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary me-1" href="{{ url_for('admin.collector_detail', collector_id=collector.id) }}">View</a>
+                    <a class="btn btn-sm btn-outline-success me-1" href="{{ url_for('admin.collector_assign_route', collector_id=collector.id) }}">Assign Route</a>
+                    <a class="btn btn-sm btn-outline-danger" href="{{ url_for('admin.collector_deactivate', collector_id=collector.id) }}">Deactivate</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // Initialize the map
+  const map = L.map('collectorMap').setView([51.5074, -0.1278], 11);
+  
+  // Add OpenStreetMap tiles
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  
+  // Add collector markers
+  const collectors = [
+    {lat: 51.5074, lon: -0.1278, name: 'John Smith', truck: 'TRK-001', route: 'R001', status: 'in_progress', fill: 85},
+    {lat: 51.5085, lon: -0.1290, name: 'Sarah Johnson', truck: 'TRK-002', route: 'R002', status: 'in_progress', fill: 65},
+    {lat: 51.5095, lon: -0.1295, name: 'Mike Davis', truck: 'TRK-003', route: 'R003', status: 'online', fill: 35},
+    {lat: 51.5100, lon: -0.1300, name: 'Lisa Chen', truck: 'TRK-004', route: 'R004', status: 'offline', fill: 0},
+    {lat: 51.5110, lon: -0.1310, name: 'David Wilson', truck: 'TRK-005', route: 'R005', status: 'in_progress', fill: 95}
+  ];
+  
+  collectors.forEach(collector => {
+    let color, radius;
+    if (collector.status === 'in_progress') {
+      color = '#16a34a';
+      radius = 12;
+    } else if (collector.status === 'online') {
+      color = '#0f7b6c';
+      radius = 10;
+    } else if (collector.status === 'offline') {
+      color = '#f59e0b';
+      radius = 8;
+    } else {
+      color = '#ef4444';
+      radius = 6;
+    }
+    
+    const marker = L.circleMarker([collector.lat, collector.lon], {radius, color, fillColor: color, fillOpacity: 0.7})
+      .addTo(map)
+      .bindPopup(`<b>${collector.name}</b><br>Truck: ${collector.truck}<br>Route: ${collector.route}<br>Status: ${collector.status}`);
+    
+    // Add custom icon for in-progress collectors
+    if (collector.status === 'in_progress') {
+      marker.setIcon(L.divIcon({
+        className: 'inprogress-icon',
+        html: '<div class="inprogress-marker"><i class="bi bi-truck-front"></i></div>',
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+      }));
+    }
+  });
+  
+  // Fit map to show all collectors
+  const bounds = L.latLngBounds(collectors.map(c => [c.lat, c.lon]));
+  map.fitBounds(bounds.pad(0.2));
+  
+  // Custom CSS for icons
+  const style = document.createElement('style');
+  style.textContent = `
+    .inprogress-marker {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #2E8B57, #16a34a);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      border: 2px solid white;
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // Refresh functionality
+  document.getElementById('refreshCollectorsBtn').addEventListener('click', function() {
+    alert('Refreshing collector data...');
+    // In a real implementation, this would refresh from API
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420" role="img" aria-label="Smart bin monitoring">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b5b50" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#0b5b50" stop-opacity="0.04"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="24" width="592" height="372" rx="28" fill="url(#g)"/>
+  <rect x="70" y="78" width="240" height="268" rx="22" fill="#ffffff" opacity="0.92"/>
+  <rect x="90" y="110" width="200" height="38" rx="12" fill="#0b5b50" opacity="0.15"/>
+  <rect x="90" y="162" width="200" height="140" rx="16" fill="#0b5b50" opacity="0.08"/>
+  <rect x="90" y="162" width="200" height="72" rx="16" fill="#16a34a" opacity="0.28"/>
+  <rect x="90" y="320" width="200" height="10" rx="5" fill="#0b5b50" opacity="0.15"/>
+
+  <rect x="352" y="92" width="218" height="50" rx="14" fill="#ffffff" opacity="0.92"/>
+  <circle cx="380" cy="117" r="10" fill="#16a34a"/>
+  <rect x="402" y="108" width="148" height="18" rx="9" fill="#0b5b50" opacity="0.2"/>
+  <rect x="352" y="160" width="218" height="132" rx="18" fill="#ffffff" opacity="0.92"/>
+  <rect x="372" y="186" width="178" height="10" rx="5" fill="#0b5b50" opacity="0.18"/>
+  <rect x="372" y="210" width="150" height="10" rx="5" fill="#0b5b50" opacity="0.12"/>
+  <rect x="372" y="234" width="168" height="10" rx="5" fill="#0b5b50" opacity="0.12"/>
+  <rect x="352" y="308" width="218" height="56" rx="18" fill="#ffffff" opacity="0.92"/>
+  <rect x="372" y="332" width="122" height="12" rx="6" fill="#0b5b50" opacity="0.16"/>
+  <rect x="500" y="326" width="50" height="24" rx="12" fill="#0b5b50" opacity="0.12"/>
+
+  <text x="96" y="102" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="16" fill="#0b5b50" opacity="0.9">Smart Bin</text>
+  <text x="372" y="386" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="14" fill="#0b5b50" opacity="0.75">Live monitoring • alerts • history</text>
+</svg>
+

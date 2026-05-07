@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820">
+  <defs>
+    <style>
+      .bg { fill: #f6f7fb; }
+      .title { font: 700 26px Inter, Segoe UI, Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 14px Inter, Segoe UI, Arial, sans-serif; fill: #64748b; }
+      .box { fill: #ffffff; stroke: rgba(2,6,23,.14); stroke-width: 1.2; rx: 16; }
+      .boxHead { font: 700 14px Inter, Segoe UI, Arial, sans-serif; fill: #0f172a; }
+      .boxText { font: 400 12.5px Inter, Segoe UI, Arial, sans-serif; fill: #334155; }
+      .chip { fill: rgba(15,123,108,.12); stroke: rgba(15,123,108,.25); stroke-width: 1; rx: 10; }
+      .chipText { font: 600 12px Inter, Segoe UI, Arial, sans-serif; fill: #0b5b50; }
+      .arrow { stroke: rgba(2,6,23,.45); stroke-width: 2; fill: none; }
+      .arrowSoft { stroke: rgba(2,6,23,.25); stroke-width: 2; fill: none; stroke-dasharray: 6 6; }
+      .note { font: 400 12px Inter, Segoe UI, Arial, sans-serif; fill: #64748b; }
+    </style>
+    <marker id="arrowHead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,3 L0,6 Z" fill="rgba(2,6,23,.55)"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1400" height="820"/>
+
+  <text class="title" x="70" y="72">Smart Waste Management System — Connection Wireframe</text>
+  <text class="subtitle" x="70" y="98">High-level view of roles, modules, data flow, and integrations (prototype)</text>
+
+  <!-- ROLE BOXES -->
+  <rect class="box" x="70" y="140" width="360" height="160"/>
+  <rect class="chip" x="90" y="160" width="132" height="28"/>
+  <text class="chipText" x="106" y="179">Public User</text>
+  <text class="boxHead" x="90" y="215">Reporter (Citizen)</text>
+  <text class="boxText" x="90" y="240">- Login / Sign up</text>
+  <text class="boxText" x="90" y="260">- View bins + map (live location)</text>
+  <text class="boxText" x="90" y="280">- Submit bin reports (full/overflow)</text>
+
+  <rect class="box" x="520" y="140" width="360" height="160"/>
+  <rect class="chip" x="540" y="160" width="158" height="28"/>
+  <text class="chipText" x="555" y="179">Worker/Driver</text>
+  <text class="boxHead" x="540" y="215">Collector</text>
+  <text class="boxText" x="540" y="240">- Login / Sign up</text>
+  <text class="boxText" x="540" y="260">- View assigned route</text>
+  <text class="boxText" x="540" y="280">- Mark stop collected (empties bin)</text>
+
+  <rect class="box" x="970" y="140" width="360" height="160"/>
+  <rect class="chip" x="990" y="160" width="104" height="28"/>
+  <text class="chipText" x="1007" y="179">Admin</text>
+  <text class="boxHead" x="990" y="215">City Operator</text>
+  <text class="boxText" x="990" y="240">- Manage bins / trucks / users</text>
+  <text class="boxText" x="990" y="260">- View alerts + notification logs</text>
+  <text class="boxText" x="990" y="280">- Generate routes + analytics + reports</text>
+
+  <!-- CORE MODULES -->
+  <rect class="box" x="70" y="360" width="1260" height="210"/>
+  <text class="boxHead" x="90" y="395">Web Application (Flask)</text>
+  <text class="boxText" x="90" y="420">UI + Controllers + Business Logic</text>
+
+  <rect class="box" x="90" y="440" width="280" height="110"/>
+  <text class="boxHead" x="110" y="470">Authentication & Roles</text>
+  <text class="boxText" x="110" y="495">- Admin / Worker / Public</text>
+  <text class="boxText" x="110" y="515">- Secure hashed passwords</text>
+
+  <rect class="box" x="400" y="440" width="300" height="110"/>
+  <text class="boxHead" x="420" y="470">Bin Monitoring</text>
+  <text class="boxText" x="420" y="495">- Fill level, status thresholds</text>
+  <text class="boxText" x="420" y="515">- Sensor readings history</text>
+
+  <rect class="box" x="730" y="440" width="290" height="110"/>
+  <text class="boxHead" x="750" y="470">Alerts & Notifications</text>
+  <text class="boxText" x="750" y="495">- Full/Overflow alerts</text>
+  <text class="boxText" x="750" y="515">- Notification logs (email/sms/system)</text>
+
+  <rect class="box" x="1045" y="440" width="265" height="110"/>
+  <text class="boxHead" x="1065" y="470">Route Optimization</text>
+  <text class="boxText" x="1065" y="495">- Urgency-weighted greedy</text>
+  <text class="boxText" x="1065" y="515">- Route stops + distance estimate</text>
+
+  <!-- DATA / INTEGRATIONS -->
+  <rect class="box" x="70" y="620" width="520" height="150"/>
+  <text class="boxHead" x="90" y="650">Database (MySQL/SQLite)</text>
+  <text class="boxText" x="90" y="675">Stores users, bins, readings, alerts, routes, stops, events, reports, reports-from-public</text>
+  <text class="boxText" x="90" y="700">Key tables: users, bins, sensor_readings, alerts, notification_logs, routes, route_stops, collection_events, bin_reports</text>
+
+  <rect class="box" x="630" y="620" width="360" height="150"/>
+  <text class="boxHead" x="650" y="650">IoT Data Source</text>
+  <text class="boxText" x="650" y="675">Option A: Admin simulation ticks</text>
+  <text class="boxText" x="650" y="695">Option B: API endpoint (/api/sensor/update)</text>
+  <text class="boxText" x="650" y="715">Creates readings + triggers alerts</text>
+
+  <rect class="box" x="1030" y="620" width="300" height="150"/>
+  <text class="boxHead" x="1050" y="650">Maps</text>
+  <text class="boxText" x="1050" y="675">- Leaflet + OSM tiles</text>
+  <text class="boxText" x="1050" y="695">- Live user location (browser GPS)</text>
+  <text class="boxText" x="1050" y="715">- Bin markers + route polylines</text>
+
+  <!-- ARROWS: Roles -> App -->
+  <path class="arrow" d="M250 300 L250 360" marker-end="url(#arrowHead)"/>
+  <path class="arrow" d="M700 300 L700 360" marker-end="url(#arrowHead)"/>
+  <path class="arrow" d="M1150 300 L1150 360" marker-end="url(#arrowHead)"/>
+
+  <!-- ARROWS: App modules -> DB -->
+  <path class="arrow" d="M330 550 L250 620" marker-end="url(#arrowHead)"/>
+  <path class="arrow" d="M550 550 L360 620" marker-end="url(#arrowHead)"/>
+  <path class="arrow" d="M860 550 L490 620" marker-end="url(#arrowHead)"/>
+  <path class="arrow" d="M1180 550 L560 620" marker-end="url(#arrowHead)"/>
+
+  <!-- IoT -> App (dashed) -->
+  <path class="arrowSoft" d="M810 620 L810 570" marker-end="url(#arrowHead)"/>
+  <text class="note" x="835" y="595">sensor updates</text>
+
+  <!-- Maps -> App (dashed) -->
+  <path class="arrowSoft" d="M1180 620 L1180 570" marker-end="url(#arrowHead)"/>
+  <text class="note" x="1200" y="595">tiles + GPS</text>
+
+  <!-- Public reports -> DB note -->
+  <path class="arrowSoft" d="M250 240 C 250 330, 170 520, 170 620" marker-end="url(#arrowHead)"/>
+  <text class="note" x="90" y="330">bin_reports</text>
+
+  <!-- Driver collections -> DB note -->
+  <path class="arrowSoft" d="M700 240 C 700 330, 450 520, 450 620" marker-end="url(#arrowHead)"/>
+  <text class="note" x="595" y="330">collection_events</text>
+
+  <!-- Admin -> IoT simulator -->
+  <path class="arrowSoft" d="M1150 240 C 1150 330, 900 520, 820 620" marker-end="url(#arrowHead)"/>
+  <text class="note" x="1070" y="330">simulate ticks</text>
+</svg>
+

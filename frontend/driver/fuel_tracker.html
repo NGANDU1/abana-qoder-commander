@@ -1,0 +1,193 @@
+{% extends "_layout.html" %}
+{% block title %}Fuel Tracker{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Fuel Tracker</h1>
+      <div class="text-muted">Track and manage your truck's fuel consumption and refueling.</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-success" href="{{ url_for('driver.daily_summary') }}"><i class="bi bi-graph-up me-2"></i>Daily Summary</a>
+      <a class="btn btn-outline-success" href="{{ url_for('driver.assigned_pickups') }}"><i class="bi bi-list-check me-2"></i>Assignments</a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="sw-kpi p-3">
+        <div class="text-muted small">Current level</div>
+        <div class="display-6">{{ fuel.current_level }}%</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="sw-kpi p-3">
+        <div class="text-muted small">Fuel remaining</div>
+        <div class="display-6">{{ fuel.remaining_liters }} L</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="sw-kpi p-3">
+        <div class="text-muted small">Consumption today</div>
+        <div class="display-6">{{ fuel.consumed_today }} L</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="sw-kpi p-3">
+        <div class="text-muted small">Avg. consumption</div>
+        <div class="display-6">{{ fuel.avg_consumption }} L/km</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8">
+      <div class="sw-card sw-kpi p-4 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fw-semibold">Fuel Level Chart</div>
+          <span class="badge bg-primary">{{ fuel.last_refuel|date('%b %d') }}</span>
+        </div>
+        
+        <div class="mb-4">
+          <div class="progress" style="height: 32px; background-color: #e2e8f0; border-radius: 16px; overflow: hidden;">
+            <div class="progress-bar bg-{{ 'success' if fuel.current_level > 50 else 'warning' if fuel.current_level > 25 else 'danger' }}" role="progressbar" style="width: {{ fuel.current_level }}%; height: 100%; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;" aria-valuenow="{{ fuel.current_level }}" aria-valuemin="0" aria-valuemax="100">{{ fuel.current_level }}%</div>
+          </div>
+          
+          <div class="d-flex justify-content-between mt-2">
+            <span class="text-muted small">Empty</span>
+            <span class="text-muted small">Full</span>
+          </div>
+        </div>
+        
+        <div class="alert alert-info p-3">
+          <div class="fw-semibold mb-1"><i class="bi bi-info-circle me-2"></i> Fuel Consumption</div>
+          <ul class="mb-0 text-muted small">
+            <li><strong>Current tank capacity:</strong> {{ fuel.tank_capacity }} L</li>
+            <li><strong>Last refuel:</strong> {{ fuel.last_refuel|date('%b %d, %Y') }} at {{ fuel.last_refuel|time('%I:%M %p') }}</li>
+            <li><strong>Distance since last refuel:</strong> {{ fuel.distance_since_refuel }} km</li>
+            <li><strong>Fuel efficiency:</strong> {{ fuel.fuel_efficiency }} km/L</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="sw-card p-4 h-100">
+        <h4 class="fw-semibold mb-3">Refueling History</h4>
+        
+        <div class="mb-4">
+          <div class="list-group list-group-flush">
+            {% for refuel in fuel.refuels[:5] %}
+              <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-semibold">{{ refuel.date|date('%b %d') }}</div>
+                  <div class="text-muted small">{{ refuel.time|time('%I:%M %p') }} • {{ refuel.location }}</div>
+                </div>
+                <div class="fw-semibold">+{{ refuel.amount }} L</div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <h5 class="fw-semibold mb-2">Consumption Analysis</h5>
+          <div class="card border-0 shadow-sm p-3">
+            <div class="d-flex justify-content-between mb-2">
+              <div class="text-muted small">Today</div>
+              <div class="fw-semibold">{{ fuel.consumed_today }} L</div>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <div class="text-muted small">This week</div>
+              <div class="fw-semibold">{{ fuel.consumed_week }} L</div>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <div class="text-muted small">This month</div>
+              <div class="fw-semibold">{{ fuel.consumed_month }} L</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div class="text-muted small">Avg. per day</div>
+              <div class="fw-semibold">{{ fuel.avg_per_day }} L</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="alert alert-warning p-3">
+          <div class="fw-semibold mb-1"><i class="bi bi-exclamation-triangle me-2"></i> Alert</div>
+          <p class="mb-0 text-muted small">Your fuel level is below 25%. Please schedule a refueling stop soon to avoid running out of fuel.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12">
+      <div class="sw-card sw-kpi p-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fw-semibold">Add Refueling Entry</div>
+          <span class="text-muted small">Record new refueling event</span>
+        </div>
+        
+        <form id="refuelForm">
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label for="refuelDate" class="form-label">Date</label>
+              <input type="date" class="form-control" id="refuelDate" name="refuel_date" value="{{ now|date('%Y-%m-%d') }}" required>
+            </div>
+            
+            <div class="col-md-4">
+              <label for="refuelTime" class="form-label">Time</label>
+              <input type="time" class="form-control" id="refuelTime" name="refuel_time" value="{{ now|time('%H:%M') }}" required>
+            </div>
+            
+            <div class="col-md-4">
+              <label for="amount" class="form-label">Amount (L)</label>
+              <input type="number" class="form-control" id="amount" name="amount" placeholder="Liters added" min="1" step="0.1" required>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" class="form-control" id="location" name="location" placeholder="Gas station or location name" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="odometer" class="form-label">Odometer Reading (km)</label>
+            <input type="number" class="form-control" id="odometer" name="odometer" placeholder="Current odometer reading" min="0" required>
+          </div>
+          
+          <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-success btn-lg px-4">
+              <i class="bi bi-fuel-pump me-2"></i> Record Refueling
+            </button>
+            <a href="{{ url_for('driver.daily_summary') }}" class="btn btn-outline-secondary btn-lg px-4">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Form submission handling
+  document.getElementById('refuelForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Simple validation
+    const amount = document.getElementById('amount').value;
+    const location = document.getElementById('location').value;
+    const odometer = document.getElementById('odometer').value;
+    
+    if (!amount || !location || !odometer) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+    
+    // In a real implementation, this would submit to the backend
+    alert('Refueling entry recorded successfully!');
+    window.location.href = '{{ url_for('driver.daily_summary') }}';
+  });
+</script>
+{% endblock %}

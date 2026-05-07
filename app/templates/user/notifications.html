@@ -1,0 +1,45 @@
+{% extends "shared/dash_layout.html" %}
+{% block title %}Notifications{% endblock %}
+
+{% block sidebar %}
+  {% set active = 'notifications' %}
+  {% include "user/_sidebar.html" %}
+{% endblock %}
+
+{% block dash_content %}
+  <div class="dash-topbar mb-3">
+    <div>
+      <h1 class="h4 mb-1">Notifications</h1>
+      <div class="text-muted">Updates about bins you reported (collections and admin changes).</div>
+    </div>
+  </div>
+
+  <div class="dash-card p-0">
+    <div class="p-3 border-bottom">
+      <div class="fw-semibold">Notification Log</div>
+      <div class="text-muted small">Most recent 50 entries.</div>
+    </div>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Time</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for n in logs %}
+            <tr>
+              <td class="text-muted small" style="white-space:nowrap;">{{ n.created_at.strftime('%Y-%m-%d %H:%M') if n.created_at else '' }}</td>
+              <td>{{ n.message }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="2" class="text-muted small p-3">No notifications yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

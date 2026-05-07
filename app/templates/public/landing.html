@@ -1,0 +1,70 @@
+{% extends "shared/layout.html" %}
+{% block title %}Smart Waste{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="hero p-4 p-lg-5 shadow-soft">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <div class="d-inline-flex align-items-center gap-2 small text-success-emphasis bg-success-subtle px-3 py-2 rounded-pill mb-3">
+          <i class="bi bi-cpu"></i>
+          <span>Smart city prototype · IoT simulation · Route optimization</span>
+        </div>
+        <h1 class="display-5 fw-semibold mb-2">Design & Development of a Smart Waste Management System</h1>
+        <p class="lead text-muted mb-4">
+          Real-time bin monitoring, automated alerts, and optimized collection routes to improve cleanliness, reduce fuel
+          cost, and increase operational efficiency.
+        </p>
+
+        <div class="d-flex flex-wrap gap-2">
+          <a class="btn btn-success btn-lg" href="{{ url_for('auth.login') }}">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Login
+          </a>
+          <a class="btn btn-outline-success btn-lg" href="{{ url_for('auth.register') }}">
+            <i class="bi bi-person-plus me-2"></i>Sign up
+          </a>
+          <a class="btn btn-outline-secondary btn-lg" href="{{ url_for('public.contact_page') }}">
+            <i class="bi bi-envelope me-2"></i>Contact
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="fw-semibold mb-2">What you can do</div>
+            <div class="vstack gap-3">
+              <div class="d-flex gap-3">
+                <div class="icon"><i class="bi bi-broadcast"></i></div>
+                <div>
+                  <div class="fw-semibold">Monitor bins</div>
+                  <div class="text-muted small">Simulated sensors update fill levels and status automatically.</div>
+                </div>
+              </div>
+              <div class="d-flex gap-3">
+                <div class="icon"><i class="bi bi-bell"></i></div>
+                <div>
+                  <div class="fw-semibold">Get alerts</div>
+                  <div class="text-muted small">Full/Overflow bins trigger alerts and notification logs.</div>
+                </div>
+              </div>
+              <div class="d-flex gap-3">
+                <div class="icon"><i class="bi bi-diagram-3"></i></div>
+                <div>
+                  <div class="fw-semibold">Optimize routes</div>
+                  <div class="text-muted small">Generate routes that prioritize urgent bins while reducing travel.</div>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+            <div class="d-flex gap-2">
+              <a class="btn btn-outline-secondary w-100" href="{{ url_for('public.map_view') }}"><i class="bi bi-map me-2"></i>View map</a>
+              <a class="btn btn-outline-success w-100" href="{{ url_for('public.dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

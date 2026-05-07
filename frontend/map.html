@@ -1,0 +1,70 @@
+{% extends "_layout.html" %}
+{% block title %}Map{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Live Map</h1>
+      <div class="text-muted">Shows depot, bin markers, and your live location (if permitted).</div>
+    </div>
+    <div class="text-muted small">Tip: click markers for details</div>
+  </div>
+
+  <div class="sw-card sw-kpi p-4">
+    <div id="map" class="map-box"></div>
+    <p class="text-muted small mt-2 mb-0">If map tiles do not load (offline), use the bins list and routes.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const depot = {{ depot|tojson }};
+    const bins = {{ bins|tojson }};
+    const map = L.map('map').setView([depot.lat, depot.lon], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+
+    const depotMarker = L.marker([depot.lat, depot.lon]).addTo(map).bindPopup("Depot / Collection Point");
+    const markers = [];
+    bins.forEach(b => {
+      const color = b.status === "Overflow" ? "purple" : (b.status === "Full" ? "red" : (b.status === "Moderate" ? "orange" : "blue"));
+      const icon = L.divIcon({className: 'bin-icon', html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 1px 2px rgba(0,0,0,.3)"></div>`});
+      const m = L.marker([b.latitude, b.longitude], {icon}).addTo(map)
+        .bindPopup(`<b>${b.bin_code}</b><br>${b.location_name}<br>Fill: ${b.fill_level}%<br>Status: ${b.status}<br><a href="/bins/${b.id}">Open details</a>`);
+      markers.push(m);
+    });
+    if (markers.length) {
+      const group = L.featureGroup([depotMarker, ...markers]);
+      map.fitBounds(group.getBounds().pad(0.2));
+    }
+
+    // Live user location
+    let userMarker = null;
+    let accuracyCircle = null;
+    let firstFix = true;
+
+    function setUserLocation(lat, lon, accuracyMeters) {
+      const p = [lat, lon];
+      if (!userMarker) userMarker = L.marker(p).addTo(map).bindPopup("You are here (live)");
+      else userMarker.setLatLng(p);
+      if (accuracyMeters) {
+        if (!accuracyCircle) accuracyCircle = L.circle(p, {radius: accuracyMeters, color: '#0ea5e9', fillColor:'#0ea5e9', fillOpacity: 0.08}).addTo(map);
+        else { accuracyCircle.setLatLng(p); accuracyCircle.setRadius(accuracyMeters); }
+      }
+      if (firstFix) { map.setView(p, 15); firstFix = false; }
+    }
+
+    if ("geolocation" in navigator) {
+      navigator.geolocation.watchPosition(
+        (pos) => setUserLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
+        (err) => console.log("Geolocation error:", err),
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
+      );
+    }
+  </script>
+{% endblock %}
+

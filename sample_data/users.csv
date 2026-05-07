@@ -1,0 +1,5 @@
+username,email,role,is_active
+admin@123,admin@city.gov,admin,true
+driver1,driver1@city.gov,collector,true
+driver2,driver2@city.gov,collector,true
+citizen,citizen@example.com,public,true

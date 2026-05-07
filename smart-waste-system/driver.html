@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Dashboard - SmartBin</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/driver.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-recycle"></i>
+                    <span>SmartBin</span>
+                </div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-label">Main</div>
+                <a href="#" class="menu-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="menu-item" data-page="pickups">
+                    <i class="fas fa-truck-loading"></i>
+                    <span>Assigned Pickups</span>
+                </a>
+                <a href="#" class="menu-item" data-page="route">
+                    <i class="fas fa-route"></i>
+                    <span>Route Map</span>
+                </a>
+                <a href="#" class="menu-item" data-page="navigation">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>GPS Navigation</span>
+                </a>
+                <a href="#" class="menu-item" data-page="vehicle">
+                    <i class="fas fa-truck-moving"></i>
+                    <span>Vehicle Status</span>
+                </a>
+                <a href="#" class="menu-item" data-page="confirm">
+                    <i class="fas fa-check-double"></i>
+                    <span>Confirm Collection</span>
+                </a>
+                <div class="menu-label">Account</div>
+                <a href="#" class="menu-item" data-page="profile">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="index.html" class="menu-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1 id="pageTitle">Driver Dashboard</h1>
+                    <p id="pageSubtitle">Welcome back, Driver Mike!</p>
+                </div>
+                <div class="top-bar-actions">
+                    <div class="notification-bell" onclick="showNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </div>
+                    <div class="user-dropdown">
+                        <div class="user-avatar">MW</div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 0.9rem;">Mike Wilson</div>
+                            <div style="font-size: 0.8rem; color: var(--gray);">Driver</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Page -->
+            <div class="page-content active" id="page-dashboard">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="todayPickups">8</h3>
+                            <p>Today's Pickups</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="completedToday">5</h3>
+                            <p>Completed</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="pendingPickups">3</h3>
+                            <p>Pending</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-weight-hanging"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalWeightCollected">142kg</h3>
+                            <p>Weight Collected</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Today's Route Overview</h2>
+                        <button class="btn btn-primary btn-sm" onclick="showPage('route')">
+                            <i class="fas fa-route"></i> View Full Route
+                        </button>
+                    </div>
+                    <div id="driverRouteMap" class="map-container" style="height: 400px;"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Next Pickups</h2>
+                        <button class="btn btn-outline btn-sm" onclick="showPage('pickups')">View All</button>
+                    </div>
+                    <div class="pickup-list">
+                        <div class="pickup-item priority-high">
+                            <div class="pickup-time">
+                                <i class="fas fa-clock"></i>
+                                <span>9:00 AM</span>
+                            </div>
+                            <div class="pickup-details">
+                                <h4>Bin #003 - Oak Road</h4>
+                                <p><i class="fas fa-map-marker-alt"></i> 123 Oak Road (95% Full - Overflow Risk!)</p>
+                            </div>
+                            <div class="pickup-actions">
+                                <button class="btn btn-primary btn-sm" onclick="startNavigation('123 Oak Road')">
+                                    <i class="fas fa-navigation"></i> Navigate
+                                </button>
+                            </div>
+                        </div>
+                        <div class="pickup-item">
+                            <div class="pickup-time">
+                                <i class="fas fa-clock"></i>
+                                <span>10:30 AM</span>
+                            </div>
+                            <div class="pickup-details">
+                                <h4>Bin #007 - Park Avenue</h4>
+                                <p><i class="fas fa-map-marker-alt"></i> 456 Park Ave (72% Full)</p>
+                            </div>
+                            <div class="pickup-actions">
+                                <button class="btn btn-primary btn-sm" onclick="startNavigation('456 Park Ave')">
+                                    <i class="fas fa-navigation"></i> Navigate
+                                </button>
+                            </div>
+                        </div>
+                        <div class="pickup-item">
+                            <div class="pickup-time">
+                                <i class="fas fa-clock"></i>
+                                <span>12:00 PM</span>
+                            </div>
+                            <div class="pickup-details">
+                                <h4>Bin #012 - Main Street</h4>
+                                <p><i class="fas fa-map-marker-alt"></i> 789 Main St (45% Full)</p>
+                            </div>
+                            <div class="pickup-actions">
+                                <button class="btn btn-primary btn-sm" onclick="startNavigation('789 Main St')">
+                                    <i class="fas fa-navigation"></i> Navigate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assigned Pickups Page -->
+            <div class="page-content" id="page-pickups">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Assigned Pickups</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <select class="btn btn-outline btn-sm" style="padding: 8px;">
+                                <option>All Status</option>
+                                <option>Pending</option>
+                                <option>In Progress</option>
+                                <option>Completed</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Bin ID</th>
+                                    <th>Location</th>
+                                    <th>Fill Level</th>
+                                    <th>Waste Type</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="priority-row">
+                                    <td>9:00 AM</td>
+                                    <td>Bin #003</td>
+                                    <td>123 Oak Road</td>
+                                    <td>
+                                        <div class="progress-bar" style="width: 100px;">
+                                            <div class="progress-fill red" style="width: 95%"></div>
+                                        </div>
+                                        <span style="font-size: 0.85rem;">95%</span>
+                                    </td>
+                                    <td>General Waste</td>
+                                    <td><span class="status-badge danger">Urgent</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm">Start</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>10:30 AM</td>
+                                    <td>Bin #007</td>
+                                    <td>456 Park Ave</td>
+                                    <td>
+                                        <div class="progress-bar" style="width: 100px;">
+                                            <div class="progress-fill orange" style="width: 72%"></div>
+                                        </div>
+                                        <span style="font-size: 0.85rem;">72%</span>
+                                    </td>
+                                    <td>Recyclables</td>
+                                    <td><span class="status-badge info">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm">Start</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>12:00 PM</td>
+                                    <td>Bin #012</td>
+                                    <td>789 Main St</td>
+                                    <td>
+                                        <div class="progress-bar" style="width: 100px;">
+                                            <div class="progress-fill green" style="width: 45%"></div>
+                                        </div>
+                                        <span style="font-size: 0.85rem;">45%</span>
+                                    </td>
+                                    <td>Organic</td>
+                                    <td><span class="status-badge info">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm">Start</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2:00 PM</td>
+                                    <td>Bin #015</td>
+                                    <td>321 Elm Street</td>
+                                    <td>
+                                        <div class="progress-bar" style="width: 100px;">
+                                            <div class="progress-fill orange" style="width: 80%"></div>
+                                        </div>
+                                        <span style="font-size: 0.85rem;">80%</span>
+                                    </td>
+                                    <td>General Waste</td>
+                                    <td><span class="status-badge info">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm">Start</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Route Optimization Page -->
+            <div class="page-content" id="page-route">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Route Optimization Map</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-secondary btn-sm">
+                                <i class="fas fa-optimize"></i> Optimize Route
+                            </button>
+                            <button class="btn btn-outline btn-sm">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    <div class="map-container" style="height: 500px; background: #e8f5e9;">
+                        <div style="text-align: center;">
+                            <i class="fas fa-map-marked-alt" style="font-size: 4rem; color: var(--primary); margin-bottom: 15px;"></i>
+                            <p style="font-size: 1.2rem; font-weight: 600;">Interactive Route Map</p>
+                            <p>AI-optimized collection route with real-time traffic data</p>
+                            <div style="margin-top: 20px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                                <span style="display: flex; align-items: center; gap: 5px;"><i class="fas fa-circle" style="color: var(--primary); font-size: 0.8rem;"></i> Pickup Points</span>
+                                <span style="display: flex; align-items: center; gap: 5px;"><i class="fas fa-circle" style="color: var(--danger); font-size: 0.8rem;"></i> Urgent</span>
+                                <span style="display: flex; align-items: center; gap: 5px;"><i class="fas fa-road" style="color: var(--secondary); font-size: 0.8rem;"></i> Optimized Route</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h3 style="margin-bottom: 15px;">Route Summary</h3>
+                        <div class="route-stats">
+                            <div class="route-stat">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>
+                                    <span class="stat-value">8</span>
+                                    <span class="stat-label">Stops</span>
+                                </div>
+                            </div>
+                            <div class="route-stat">
+                                <i class="fas fa-road"></i>
+                                <div>
+                                    <span class="stat-value">24.5 km</span>
+                                    <span class="stat-label">Total Distance</span>
+                                </div>
+                            </div>
+                            <div class="route-stat">
+                                <i class="fas fa-clock"></i>
+                                <div>
+                                    <span class="stat-value">4.5 hrs</span>
+                                    <span class="stat-label">Est. Time</span>
+                                </div>
+                            </div>
+                            <div class="route-stat">
+                                <i class="fas fa-gas-pump"></i>
+                                <div>
+                                    <span class="stat-value">12L</span>
+                                    <span class="stat-label">Fuel Est.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GPS Navigation Page -->
+            <div class="page-content" id="page-navigation">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>GPS Navigation</h2>
+                        <button class="btn btn-danger btn-sm" onclick="stopNavigation()">
+                            <i class="fas fa-stop-circle"></i> End Navigation
+                        </button>
+                    </div>
+                    <div class="navigation-container">
+                    <div id="navMap" class="map-container" style="height: 400px; margin-bottom: 20px;"></div>
+                        <div class="navigation-info">
+                            <div class="nav-current">
+                                <h3>Current Destination</h3>
+                                <p id="currentDestination">123 Oak Road - Bin #003</p>
+                                <div class="nav-details">
+                                    <div class="nav-detail">
+                                        <i class="fas fa-road"></i>
+                                        <span>Distance: 2.3 km</span>
+                                    </div>
+                                    <div class="nav-detail">
+                                        <i class="fas fa-clock"></i>
+                                        <span>ETA: 8 minutes</span>
+                                    </div>
+                                    <div class="nav-detail">
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <span>Fill Level: 95%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="nav-instructions">
+                                <div class="instruction-card">
+                                    <i class="fas fa-arrow-right"></i>
+                                    <div>
+                                        <strong>Turn right</strong> onto Oak Road
+                                        <p>After 500m</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle Status Page -->
+            <div class="page-content" id="page-vehicle">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-truck-moving"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Active</h3>
+                            <p>Vehicle Status</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-weight-hanging"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>142 kg</h3>
+                            <p>Current Load</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-gas-pump"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>65%</h3>
+                            <p>Fuel Level</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-battery-three-quarters"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>87%</h3>
+                            <p>Battery</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Vehicle Information</h2>
+                    </div>
+                    <div class="vehicle-info-grid">
+                        <div class="vehicle-info-item">
+                            <i class="fas fa-truck"></i>
+                            <div>
+                                <span class="label">Vehicle ID</span>
+                                <span class="value">V-001</span>
+                            </div>
+                        </div>
+                        <div class="vehicle-info-item">
+                            <i class="fas fa-id-card"></i>
+                            <div>
+                                <span class="label">License Plate</span>
+                                <span class="value">ABC-1234</span>
+                            </div>
+                        </div>
+                        <div class="vehicle-info-item">
+                            <i class="fas fa-cogs"></i>
+                            <div>
+                                <span class="label">Model</span>
+                                <span class="value">WasteMaster 3000</span>
+                            </div>
+                        </div>
+                        <div class="vehicle-info-item">
+                            <i class="fas fa-calendar-check"></i>
+                            <div>
+                                <span class="label">Last Service</span>
+                                <span class="value">2026-04-15</span>
+                            </div>
+                        </div>
+                        <div class="vehicle-info-item">
+                            <i class="fas fa-thermometer-half"></i>
+                            <div>
+                                <span class="label">Engine Temp</span>
+                                <span class="value">85°C</span>
+                            </div>
+                        </div>
+                        <div class="vehicle-info-item">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <div>
+                                <span class="label">Odometer</span>
+                                <span class="value">45,230 km</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>GPS Tracking</h2>
+                    </div>
+                    <div id="vehicleMap" class="map-container" style="height: 300px;"></div>
+                </div>
+            </div>
+
+            <!-- Confirm Collection Page -->
+            <div class="page-content" id="page-confirm">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Confirm Waste Collection</h2>
+                    </div>
+                    <form id="confirmForm" onsubmit="confirmCollection(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Bin ID</label>
+                                <input type="text" id="confirmBinId" value="Bin #003" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Location</label>
+                                <input type="text" id="confirmLocation" value="123 Oak Road" readonly>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Waste Type</label>
+                                <select id="confirmWasteType" required>
+                                    <option value="general">General Waste</option>
+                                    <option value="recyclable">Recyclable</option>
+                                    <option value="organic">Organic Waste</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Weight Collected (kg)</label>
+                                <input type="number" id="confirmWeight" placeholder="Enter weight" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Bin Condition After Collection</label>
+                            <select id="binCondition" required>
+                                <option value="clean">Clean & Empty</option>
+                                <option value="dirty">Needs Cleaning</option>
+                                <option value="damaged">Damaged</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Photo Proof</label>
+                            <div class="upload-area" onclick="document.getElementById('collectionPhoto').click()">
+                                <i class="fas fa-camera"></i>
+                                <p>Take photo or upload</p>
+                                <span>JPG, PNG (max 5MB)</span>
+                                <input type="file" id="collectionPhoto" accept="image/*" hidden>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Notes</label>
+                            <textarea id="collectionNotes" rows="3" placeholder="Any observations or issues..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check-circle"></i> Confirm Collection
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div class="page-content" id="page-profile">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Driver Profile</h2>
+                    </div>
+                    <form id="driverProfileForm">
+                        <div style="display: flex; gap: 30px; margin-bottom: 30px; flex-wrap: wrap;">
+                            <div style="text-align: center;">
+                                <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--secondary); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 15px;">
+                                    MW
+                                </div>
+                                <button class="btn btn-outline btn-sm">Change Photo</button>
+                            </div>
+                            <div style="flex: 1; min-width: 250px;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>First Name</label>
+                                        <input type="text" value="Mike" id="driverFirstName">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Last Name</label>
+                                        <input type="text" value="Wilson" id="driverLastName">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" value="mike.wilson@smartbin.com" id="driverEmail">
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone</label>
+                                    <input type="tel" value="+1 234 567 8901" id="driverPhone">
+                                </div>
+                                <div class="form-group">
+                                    <label>License Number</label>
+                                    <input type="text" value="DL123456789" id="driverLicense">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/driver.js"></script>
+</body>
+</html>

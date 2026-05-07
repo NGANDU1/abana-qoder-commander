@@ -1,0 +1,34 @@
+{% extends "shared/layout.html" %}
+{% block title %}Simulate IoT{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 720px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <h1 class="h4 mb-1">IoT Sensor Simulation</h1>
+      <p class="text-muted mb-4">
+        This prototype simulates bin sensors by generating readings and updating fill levels.
+        Alerts are created automatically when thresholds are reached.
+      </p>
+      <form method="post" action="{{ url_for('admin.simulate_post') }}">
+        <div class="mb-3">
+          <label class="form-label">Simulation mode</label>
+          <select class="form-select" name="mode">
+            <option value="random-increase">Random increase (0..22%)</option>
+            <option value="random-walk">Random walk (-10..20%)</option>
+            <option value="spike-hotspots">Spike hotspots (some bins fill fast)</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Iterations (ticks)</label>
+          <input class="form-control" type="number" name="iterations" min="1" max="50" value="1" required>
+          <div class="form-text">Each tick generates new sensor readings and may trigger alerts.</div>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-success" type="submit">Run simulation</button>
+          <a class="btn btn-outline-secondary" href="{{ url_for('admin.admin_home') }}">Back</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

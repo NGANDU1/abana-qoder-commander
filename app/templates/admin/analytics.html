@@ -1,0 +1,161 @@
+{% extends "shared/layout.html" %}
+{% block title %}Analytics{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Analytics Dashboard</h1>
+      <div class="text-muted">Trends and hotspots ({{ start_day }} → {{ end_day }}).</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{{ url_for('admin.reports') }}"><i class="bi bi-table me-2"></i>Tables</a>
+      <a class="btn btn-outline-secondary" href="{{ url_for('admin.saved_reports') }}"><i class="bi bi-save2 me-2"></i>Saved reports</a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Total bins</div>
+          <div class="display-6">{{ kpis.total_bins }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Active alerts</div>
+          <div class="display-6">{{ kpis.active_alerts }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Routes generated</div>
+          <div class="display-6">{{ kpis.routes_total }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Collections logged</div>
+          <div class="display-6">{{ kpis.collections_total }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="fw-semibold">Bins by waste type</div>
+            <div class="text-muted small">Distribution</div>
+          </div>
+          <canvas id="wasteChart" height="220"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="fw-semibold">Bins by area</div>
+            <div class="text-muted small">Hotspots</div>
+          </div>
+          <canvas id="areaChart" height="220"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="fw-semibold">Alerts per day</div>
+            <div class="text-muted small">Last 14 days</div>
+          </div>
+          <canvas id="alertsChart" height="220"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="fw-semibold">Route efficiency</div>
+            <div class="text-muted small">Distance vs number of stops (last 12 routes)</div>
+          </div>
+          <canvas id="routeEffChart" height="120"></canvas>
+          <div class="text-muted small mt-2">
+            Interpretation: for similar stop counts, lower distance suggests a more efficient route plan.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const payload = {{ data|tojson }};
+
+  // Waste type
+  const wasteLabels = payload.bins_by_waste.map(x => x.label);
+  const wasteValues = payload.bins_by_waste.map(x => x.value);
+  new Chart(document.getElementById('wasteChart'), {
+    type: 'doughnut',
+    data: { labels: wasteLabels, datasets: [{ data: wasteValues, borderWidth: 0 }]},
+    options: { plugins: { legend: { position: 'bottom' } }, cutout: '60%' }
+  });
+
+  // Area bars
+  const areaLabels = payload.bins_by_area.map(x => x.label);
+  const areaValues = payload.bins_by_area.map(x => x.value);
+  new Chart(document.getElementById('areaChart'), {
+    type: 'bar',
+    data: { labels: areaLabels, datasets: [{ label: 'Bins', data: areaValues, backgroundColor: 'rgba(15,123,108,.35)' }]},
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+
+  // Alerts line
+  const alertLabels = payload.alerts_daily.map(x => x.day);
+  const alertValues = payload.alerts_daily.map(x => x.count);
+  new Chart(document.getElementById('alertsChart'), {
+    type: 'line',
+    data: { labels: alertLabels, datasets: [{ label: 'Alerts', data: alertValues, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,.12)', fill: true, tension: .25, pointRadius: 2 }]},
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+
+  // Route efficiency scatter (x=stops, y=km)
+  const points = payload.routes_eff.map(x => ({ x: x.stops, y: x.km, route: x.route }));
+  new Chart(document.getElementById('routeEffChart'), {
+    type: 'scatter',
+    data: { datasets: [{ label: 'Routes', data: points, backgroundColor: 'rgba(15,123,108,.55)' }]},
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const r = ctx.raw;
+              return `${r.route}: ${r.y.toFixed(2)} km, ${r.x} stops`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Stops' }, ticks: { precision: 0 } },
+        y: { title: { display: true, text: 'Distance (km)' } }
+      }
+    }
+  });
+</script>
+{% endblock %}
+

@@ -1,0 +1,47 @@
+{% extends "shared/layout.html" %}
+{% block title %}Routes{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Routes</h1>
+      <div class="text-muted">Optimized collection routes for trucks/drivers.</div>
+    </div>
+    <a class="btn btn-success" href="{{ url_for('admin.routes_new') }}">Generate new</a>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Route</th>
+            <th>Date</th>
+            <th>Truck</th>
+            <th>Driver</th>
+            <th>Status</th>
+            <th>Distance (km)</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in routes %}
+            <tr>
+              <td class="fw-semibold">{{ r.route_code }}</td>
+              <td class="text-muted">{{ r.date_for }}</td>
+              <td>{{ r.truck.name if r.truck else '-' }}</td>
+              <td>{{ r.driver.username if r.driver else '-' }}</td>
+              <td><span class="badge text-bg-secondary">{{ r.status }}</span></td>
+              <td class="text-muted">{{ r.total_distance_km or '-' }}</td>
+              <td class="text-end">
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin.route_detail', route_id=r.id) }}">View</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

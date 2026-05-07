@@ -1,0 +1,119 @@
+{% extends "shared/dash_layout.html" %}
+{% block title %}User Dashboard{% endblock %}
+
+{% block sidebar %}
+  {% set active = 'dashboard' %}
+  {% include "user/_sidebar.html" %}
+{% endblock %}
+
+{% block dash_content %}
+  <div class="dash-topbar mb-3">
+    <div>
+      <h1 class="h4 mb-1">Welcome back, {{ current_user.first_name or current_user.username }}!</h1>
+      <div class="text-muted">Let's keep our environment clean and green.</div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <div class="pill text-muted small d-flex align-items-center gap-2">
+        <i class="bi bi-calendar3"></i>
+        <span class="fw-semibold">{{ today_str }}</span>
+      </div>
+      <a class="btn btn-success" href="{{ url_for('user.bins') }}"><i class="bi bi-plus-circle"></i> New Request</a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="dash-card p-3 h-100">
+        <div class="dash-metric">
+          <div>
+            <div class="text-muted small">Open Requests</div>
+            <div class="fs-3 fw-semibold">{{ stats.open_reports }}</div>
+            <div class="small text-muted">Your open reports</div>
+          </div>
+          <div class="icon"><i class="bi bi-hourglass-split"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="dash-card p-3 h-100">
+        <div class="dash-metric">
+          <div>
+            <div class="text-muted small">Total Requests</div>
+            <div class="fs-3 fw-semibold">{{ stats.total_reports }}</div>
+            <div class="small text-muted">All-time</div>
+          </div>
+          <div class="icon"><i class="bi bi-clipboard2-data"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="dash-card p-3 h-100">
+        <div class="dash-metric">
+          <div>
+            <div class="text-muted small">Rewards Points</div>
+            <div class="fs-3 fw-semibold">{{ stats.reward_points }}</div>
+            <div class="small text-muted">Prototype points</div>
+          </div>
+          <div class="icon"><i class="bi bi-award"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-xl-8">
+      <div class="dash-card p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fw-semibold">Recent Requests</div>
+          <a class="small" href="{{ url_for('user.bins') }}">View all</a>
+        </div>
+        {% if recent_reports %}
+          <div class="table-responsive">
+            <table class="table align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Bin</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                  <th class="text-end">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in recent_reports %}
+                  <tr>
+                    <td class="fw-semibold">{{ r.bin.bin_code if r.bin else '—' }}</td>
+                    <td class="text-muted">{{ r.message or 'Report submitted' }}</td>
+                    <td>
+                      {% if r.status == 'open' %}
+                        <span class="badge text-bg-warning">Open</span>
+                      {% elif r.status == 'reviewed' %}
+                        <span class="badge text-bg-success">Reviewed</span>
+                      {% elif r.status == 'completed' %}
+                        <span class="badge text-bg-success">Completed</span>
+                      {% elif r.status == 'dismissed' %}
+                        <span class="badge text-bg-secondary">Dismissed</span>
+                      {% else %}
+                        <span class="badge text-bg-secondary">{{ r.status }}</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-end text-muted small">{{ r.created_at.strftime('%b %d, %H:%M') if r.created_at else '' }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-muted small">No requests yet. Open a bin and click “Report”.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      <div class="dash-card p-3">
+        <div class="fw-semibold mb-1">Make a Request</div>
+        <div class="text-muted small mb-2">Need a pickup? Request it by reporting a bin.</div>
+        <a class="btn btn-success w-100" href="{{ url_for('user.bins') }}"><i class="bi bi-pin-map"></i> Browse bins</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "shared/layout.html" %}
+{% block title %}Sign up{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 640px;">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Create an account</h1>
+      <div class="text-muted">One signup form for User, Worker, and Admin.</div>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('auth.login') }}">Back to login</a>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <style>
+        .sw-invalid-glow.is-invalid {
+          box-shadow: 0 0 0 .25rem rgba(220, 53, 69, .18);
+        }
+      </style>
+      <form method="post" action="{{ url_for('auth.register_post') }}">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label small">Role</label>
+            <select class="form-select" name="role" id="roleSelect" required>
+              <option value="user" selected>User</option>
+              <option value="worker">Worker</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div class="col-12" id="employeeIdWrap" style="display:none;">
+            <label class="form-label small">Employee ID</label>
+            <input class="form-control" name="employee_id" id="employeeId" placeholder="e.g. WRK-001">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small">Username</label>
+            <input class="form-control" name="username" required>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small">Email</label>
+            <input class="form-control" name="email" type="email" required>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small">First name</label>
+            <input class="form-control" name="first_name" required>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small">Surname</label>
+            <input class="form-control" name="last_name" required>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small">Phone number</label>
+            <input class="form-control" name="phone_number" placeholder="+44 ..." required>
+          </div>
+
+          <div class="col-12" id="adminCodeWrap" style="display:none;">
+            <label class="form-label small">Admin signup code</label>
+            <input class="form-control" name="admin_code">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small">Password</label>
+            <input class="form-control sw-invalid-glow" type="password" id="password" name="password" required>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small">Confirm</label>
+            <input class="form-control sw-invalid-glow" type="password" id="password2" name="password2" required>
+            <div class="invalid-feedback">Passwords do not match.</div>
+          </div>
+        </div>
+
+        <button class="btn btn-success w-100 mt-3" type="submit">
+          <i class="bi bi-person-plus me-2"></i>Sign up
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const roleSelect = document.getElementById('roleSelect');
+    const employeeIdWrap = document.getElementById('employeeIdWrap');
+    const adminCodeWrap = document.getElementById('adminCodeWrap');
+    const employeeIdInput = document.getElementById('employeeId');
+    const password = document.getElementById('password');
+    const password2 = document.getElementById('password2');
+
+    function sync() {
+      const role = roleSelect.value;
+      employeeIdWrap.style.display = (role === 'worker' || role === 'admin') ? '' : 'none';
+      adminCodeWrap.style.display = (role === 'admin') ? '' : 'none';
+      if (employeeIdInput) {
+        employeeIdInput.required = (role === 'worker' || role === 'admin');
+      }
+    }
+
+    function syncPasswords() {
+      if (!password || !password2) return;
+      const mismatch = password2.value.length > 0 && password.value !== password2.value;
+      password.classList.toggle('is-invalid', mismatch);
+      password2.classList.toggle('is-invalid', mismatch);
+      password2.setCustomValidity(mismatch ? 'Passwords do not match' : '');
+    }
+
+    roleSelect.addEventListener('change', sync);
+    if (password) password.addEventListener('input', syncPasswords);
+    if (password2) password2.addEventListener('input', syncPasswords);
+    sync();
+    syncPasswords();
+  })();
+</script>
+{% endblock %}

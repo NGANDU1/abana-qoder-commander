@@ -1,0 +1,65 @@
+{% extends "shared/layout.html" %}
+{% block title %}Bins{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Bins</h1>
+      <div class="text-muted">Smart waste collection points.</div>
+    </div>
+    <a class="btn btn-success" href="{{ url_for('admin.bin_create') }}">Add bin</a>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Bin ID</th>
+            <th>Location</th>
+            <th>Area</th>
+            <th>Type</th>
+            <th>Fill level</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in bins %}
+            <tr>
+              <td class="fw-semibold">{{ b.bin_code }}</td>
+              <td>{{ b.location_name }}</td>
+              <td class="text-muted">{{ b.area or '-' }}</td>
+              <td><span class="badge text-bg-secondary">{{ b.waste_type }}</span></td>
+              <td>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-success" role="progressbar" style="width: {{ b.fill_level }}%;" aria-valuenow="{{ b.fill_level }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <small class="text-muted">{{ b.fill_level }}%</small>
+              </td>
+              <td>
+                {% if b.status == 'Empty' %}
+                  <span class="badge text-bg-success">{{ b.status }}</span>
+                {% elif b.status == 'Moderate' %}
+                  <span class="badge text-bg-warning">{{ b.status }}</span>
+                {% elif b.status == 'Full' %}
+                  <span class="badge text-bg-danger">{{ b.status }}</span>
+                {% elif b.status == 'Overflow' %}
+                  <span class="badge text-bg-danger">{{ b.status }}!</span>
+                {% else %}
+                  <span class="badge text-bg-secondary">{{ b.status }}</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <a class="btn btn-sm btn-outline-primary me-1" href="{{ url_for('admin.bin_edit', bin_id=b.id) }}">Edit</a>
+                <a class="btn btn-sm btn-outline-warning me-1" href="{{ url_for('admin.bin_update_level', bin_id=b.id) }}">Update level</a>
+                <a class="btn btn-sm btn-outline-danger" href="{{ url_for('admin.bin_delete', bin_id=b.id) }}" onclick="return confirm('Delete this bin?')">Delete</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

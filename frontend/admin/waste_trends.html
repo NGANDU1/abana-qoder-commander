@@ -1,0 +1,341 @@
+{% extends "_layout.html" %}
+{% block title %}Waste Trends{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Waste Trends & Analytics</h1>
+      <div class="text-muted">Comprehensive analytics and trend analysis for waste management.</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-success" href="{{ url_for('admin.reports') }}"><i class="bi bi-table me-2"></i>Reports</a>
+      <a class="btn btn-outline-success" href="{{ url_for('admin.analytics') }}"><i class="bi bi-graph-up me-2"></i>Analytics Dashboard</a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8">
+      <div class="sw-card sw-kpi p-4 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fw-semibold">Waste Collection Trends</div>
+          <div class="d-flex gap-2">
+            <select class="form-select form-select-sm" id="timeRange" name="time_range">
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="90d">Last 90 days</option>
+              <option value="1y">Last year</option>
+            </select>
+            <button class="btn btn-outline-secondary btn-sm" id="exportBtn"><i class="bi bi-download me-1"></i> Export</button>
+          </div>
+        </div>
+        
+        <canvas id="collectionTrendChart" height="220"></canvas>
+        
+        <div class="mt-3">
+          <div class="d-flex justify-content-between mb-2">
+            <div class="fw-semibold">Summary</div>
+            <div class="text-muted small">{{ summary.period_start|date('%b %d') }} → {{ summary.period_end|date('%b %d') }}</div>
+          </div>
+          
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-3">
+                  <div class="text-muted small mb-1">Total Collections</div>
+                  <div class="display-4 fw-bold">{{ summary.total_collections }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-3">
+                  <div class="text-muted small mb-1">Avg. Daily</div>
+                  <div class="display-4 fw-bold">{{ summary.avg_daily|round(1) }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-3">
+                  <div class="text-muted small mb-1">Growth vs Last Period</div>
+                  <div class="display-4 fw-bold text-{{ 'success' if summary.growth_percent > 0 else 'danger' }}">{{ summary.growth_percent|round(1) }}%</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-3">
+                  <div class="text-muted small mb-1">Completion Rate</div>
+                  <div class="display-4 fw-bold text-success">{{ summary.completion_rate }}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="sw-card p-4 h-100">
+        <h4 class="fw-semibold mb-3">Trend Analysis</h4>
+        
+        <div class="mb-4">
+          <h5 class="fw-semibold mb-2">Waste Type Distribution</h5>
+          <canvas id="wasteTypeChart" height="190"></canvas>
+        </div>
+        
+        <div class="mb-4">
+          <h5 class="fw-semibold mb-2">Collection Efficiency</h5>
+          <div class="progress mb-2" style="height: 6px;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: {{ summary.efficiency_rate }}%" aria-valuenow="{{ summary.efficiency_rate }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted small">Efficiency Rate</span>
+            <span class="fw-semibold">{{ summary.efficiency_rate }}%</span>
+          </div>
+          <div class="text-muted small mt-2">{{ summary.efficiency_description }}</div>
+        </div>
+        
+        <div class="mb-4">
+          <h5 class="fw-semibold mb-2">Top Performing Areas</h5>
+          <div class="list-group list-group-flush">
+            {% for area in top_areas[:5] %}
+              <div class="list-group-item d-flex justify-content-between">
+                <span>{{ area.name }}</span>
+                <span class="fw-semibold">{{ area.collection_count }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        
+        <div class="alert alert-info p-3">
+          <div class="fw-semibold mb-1"><i class="bi bi-info-circle me-2"></i> Trend Insights</div>
+          <ul class="mb-0 text-muted small">
+            <li><strong>Recycling increased by {{ summary.recycling_growth }}% this month</strong></li>
+            <li>Hazardous waste collection is down 12% compared to last quarter</li>
+            <li>Downtown area shows highest collection efficiency at 94%</li>
+            <li>Weekend collections are 23% higher than weekday averages</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <div class="sw-card sw-kpi p-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fw-semibold">Bin Fill Level Trends</div>
+          <div class="d-flex gap-2">
+            <select class="form-select form-select-sm" id="binTypeFilter" name="bin_type_filter">
+              <option value="all">All Bin Types</option>
+              <option value="recycling">Recycling</option>
+              <option value="compost">Compost</option>
+              <option value="general">General Waste</option>
+              <option value="hazardous">Hazardous</option>
+            </select>
+            <button class="btn btn-outline-secondary btn-sm" id="refreshBinsBtn"><i class="bi bi-arrow-clockwise me-1"></i> Refresh</button>
+          </div>
+        </div>
+        
+        <canvas id="fillLevelChart" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="sw-card sw-kpi p-4 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fw-semibold">Route Optimization Metrics</div>
+          <span class="badge bg-primary">{{ summary.optimized_routes }} routes</span>
+        </div>
+        
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-3">
+                <div class="text-muted small mb-1">Avg. Distance Saved</div>
+                <div class="display-4 fw-bold">{{ summary.avg_distance_saved }} km</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-3">
+                <div class="text-muted small mb-1">Fuel Savings</div>
+                <div class="display-4 fw-bold">{{ summary.fuel_savings }} L</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <canvas id="routeOptimizationChart" height="190"></canvas>
+      </div>
+    </div>
+    
+    <div class="col-lg-6">
+      <div class="sw-card sw-kpi p-4 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fw-semibold">Complaint & Issue Trends</div>
+          <span class="badge bg-warning">{{ summary.total_complaints }} complaints</span>
+        </div>
+        
+        <canvas id="complaintTrendChart" height="190"></canvas>
+        
+        <div class="mt-3">
+          <div class="d-flex justify-content-between mb-2">
+            <div class="fw-semibold">Complaint Resolution</div>
+            <div class="text-muted small">{{ summary.resolved_complaints }} of {{ summary.total_complaints }}</div>
+          </div>
+          
+          <div class="progress mb-2" style="height: 6px;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: {{ summary.resolution_rate }}%" aria-valuenow="{{ summary.resolution_rate }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted small">Resolution Rate</span>
+            <span class="fw-semibold">{{ summary.resolution_rate }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Initialize collection trend chart
+  const ctx1 = document.getElementById('collectionTrendChart').getContext('2d');
+  new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [{
+        label: 'Collections Completed',
+        data: [24, 32, 28, 35, 42, 56, 48],
+        borderColor: '#16a34a',
+        backgroundColor: 'rgba(22, 163, 74, 0.1)',
+        fill: true,
+        tension: 0.25
+      }, {
+        label: 'Scheduled Collections',
+        data: [26, 34, 30, 37, 44, 58, 50],
+        borderColor: '#0f7b6c',
+        borderDash: [5, 5],
+        backgroundColor: 'rgba(15, 123, 108, 0.05)',
+        fill: false
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: 'top' }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 } }
+      }
+    }
+  });
+  
+  // Initialize waste type chart
+  const ctx2 = document.getElementById('wasteTypeChart').getContext('2d');
+  new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: ['Recycling', 'Compost', 'General Waste', 'Hazardous'],
+      datasets: [{
+        data: [{{ summary.recycling_percent }}, {{ summary.compost_percent }}, {{ summary.general_percent }}, {{ summary.hazardous_percent }}],
+        backgroundColor: ['#16a34a', '#0f7b6c', '#0b5b50', '#7c3aed'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: 'bottom' }
+      },
+      cutout: '60%'
+    }
+  });
+  
+  // Initialize fill level chart
+  const ctx3 = document.getElementById('fillLevelChart').getContext('2d');
+  new Chart(ctx3, {
+    type: 'bar',
+    data: {
+      labels: ['Empty', 'Moderate', 'Full', 'Overflow'],
+      datasets: [{
+        label: 'Fill Levels',
+        data: [{{ summary.empty_bins }}, {{ summary.moderate_bins }}, {{ summary.full_bins }}, {{ summary.overflow_bins }}],
+        backgroundColor: ['#0ea5e9', '#0f7b6c', '#f59e0b', '#ef4444'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 } }
+      }
+    }
+  });
+  
+  // Initialize route optimization chart
+  const ctx4 = document.getElementById('routeOptimizationChart').getContext('2d');
+  new Chart(ctx4, {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      datasets: [{
+        label: 'Distance Saved (km)',
+        data: [124, 132, 145, 158, 162, 174],
+        borderColor: '#16a34a',
+        backgroundColor: 'rgba(22, 163, 74, 0.1)',
+        fill: true,
+        tension: 0.25
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: 'top' }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 } }
+      }
+    }
+  });
+  
+  // Initialize complaint trend chart
+  const ctx5 = document.getElementById('complaintTrendChart').getContext('2d');
+  new Chart(ctx5, {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      datasets: [{
+        label: 'Complaints Received',
+        data: [12, 15, 18, 22, 19, 25],
+        borderColor: '#ef4444',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        fill: false,
+        tension: 0.25
+      }, {
+        label: 'Complaints Resolved',
+        data: [10, 13, 16, 20, 18, 22],
+        borderColor: '#16a34a',
+        backgroundColor: 'rgba(22, 163, 74, 0.1)',
+        fill: false,
+        tension: 0.25
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: 'top' }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 } }
+      }
+    }
+  });
+</script>
+{% endblock %}

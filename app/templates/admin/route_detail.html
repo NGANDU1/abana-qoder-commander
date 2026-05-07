@@ -1,0 +1,88 @@
+{% extends "shared/layout.html" %}
+{% block title %}Route {{ r.route_code }}{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Route {{ r.route_code }}</h1>
+      <div class="text-muted">Algorithm: {{ r.algorithm }}</div>
+      <div class="text-muted small">Truck: {{ r.truck.name if r.truck else '-' }} · Driver: {{ r.driver.username if r.driver else '-' }} · Distance: {{ r.total_distance_km or '-' }} km</div>
+    </div>
+    <div class="d-flex gap-2">
+      {% if r.status=='planned' %}
+        <a class="btn btn-outline-success" href="{{ url_for('admin.route_start', route_id=r.id) }}">Start</a>
+      {% endif %}
+      {% if r.status!='completed' %}
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin.route_complete', route_id=r.id) }}">Mark completed</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <div id="routeMap" class="map-box"></div>
+      <p class="text-muted small mt-2 mb-0">Route path is drawn as a polyline between depot and stops (approximate).</p>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mt-3">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Bin</th>
+            <th>Location</th>
+            <th>Fill</th>
+            <th>Status</th>
+            <th>Distance from previous (km)</th>
+            <th>Stop status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in stops %}
+            <tr>
+              <td class="text-muted">{{ s.seq }}</td>
+              <td class="fw-semibold">{{ s.bin.bin_code }}</td>
+              <td>{{ s.bin.location_name }}</td>
+              <td>{{ s.bin.fill_level }}%</td>
+              <td><span class="badge text-bg-secondary">{{ s.bin.status }}</span></td>
+              <td class="text-muted">{{ s.distance_from_prev_km or '-' }}</td>
+              <td><span class="badge text-bg-secondary">{{ s.status }}</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const depot = {{ depot|tojson }};
+    const stops = {{ stops_points|tojson }};
+    const map = L.map('routeMap').setView([depot.lat, depot.lon], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const points = [[depot.lat, depot.lon]];
+    L.marker([depot.lat, depot.lon]).addTo(map).bindPopup("Depot");
+    stops.forEach(s => {
+      points.push([s.lat, s.lon]);
+      L.circleMarker([s.lat, s.lon], {radius: 7, color: '#0f7b6c'}).addTo(map)
+        .bindPopup(`<b>${s.seq}. ${s.bin_code}</b><br>Fill: ${s.fill_level}%<br>Status: ${s.status}`);
+    });
+    points.push([depot.lat, depot.lon]);
+
+    if (points.length > 2) {
+      const line = L.polyline(points, {color: '#0f7b6c'}).addTo(map);
+      map.fitBounds(line.getBounds().pad(0.2));
+    }
+  </script>
+{% endblock %}

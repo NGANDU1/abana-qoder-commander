@@ -1,0 +1,70 @@
+{% extends "shared/layout.html" %}
+{% block title %}{% if mode=='create' %}Add Bin{% else %}Edit Bin{% endif %}{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 720px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <h1 class="h4 mb-3">{% if mode=='create' %}Add Smart Bin{% else %}Edit Smart Bin{% endif %}</h1>
+
+      <form method="post" action="{% if mode=='create' %}{{ url_for('admin.bin_create_post') }}{% else %}{{ url_for('admin.bin_edit_post', bin_id=bin.id) }}{% endif %}">
+        {% if mode=='create' %}
+          <div class="mb-3">
+            <label class="form-label">Bin ID</label>
+            <input class="form-control" name="bin_code" placeholder="BIN-001" required>
+          </div>
+        {% else %}
+          <div class="mb-3">
+            <label class="form-label">Bin ID</label>
+            <input class="form-control" value="{{ bin.bin_code }}" disabled>
+          </div>
+        {% endif %}
+
+        <div class="mb-3">
+          <label class="form-label">Location name</label>
+          <input class="form-control" name="location_name" value="{{ bin.location_name if bin else '' }}" required>
+        </div>
+
+        <div class="row g-2">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Area</label>
+            <input class="form-control" name="area" value="{{ bin.area if bin else '' }}" placeholder="e.g., Central">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Waste type</label>
+            <select class="form-select" name="waste_type">
+              {% set current = bin.waste_type if bin else 'General' %}
+              {% for wt in ['General','Plastic','Organic','Paper','Glass','Metal'] %}
+                <option value="{{ wt }}" {% if current==wt %}selected{% endif %}>{{ wt }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="row g-2">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Latitude</label>
+            <input class="form-control" name="latitude" value="{{ bin.latitude if bin else '' }}" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Longitude</label>
+            <input class="form-control" name="longitude" value="{{ bin.longitude if bin else '' }}" required>
+          </div>
+        </div>
+
+        {% if mode=='create' %}
+          <div class="mb-3">
+            <label class="form-label">Initial fill level (%)</label>
+            <input class="form-control" name="fill_level" type="number" min="0" max="100" value="0" required>
+          </div>
+        {% endif %}
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-success" type="submit">Save</button>
+          <a class="btn btn-outline-secondary" href="{{ url_for('public.bins') }}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

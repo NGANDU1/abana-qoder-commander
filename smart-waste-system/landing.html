@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBin - Smart Waste Management System</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="landing-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-recycle"></i>
+                <span>SmartBin</span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="#features">Features</a>
+                <a href="#roles">Roles</a>
+                <a href="#technology">Technology</a>
+                <a href="#stats">Stats</a>
+            </div>
+            <div class="nav-actions">
+                <a href="index.html" class="btn btn-outline">Login</a>
+                <a href="index.html" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg-image"></div>
+        <div class="hero-container" style="grid-template-columns: 1fr;">
+            <div class="hero-content" style="color: white !important; max-width: 800px; text-align: left;">
+                <div class="hero-badge" style="color: white !important; background: rgba(255,255,255,0.2) !important;">
+                    <i class="fas fa-leaf"></i>
+                    <span>Eco-Friendly Smart City Solution</span>
+                </div>
+                <h1 style="color: white !important; text-shadow: 0 2px 10px rgba(0,0,0,0.5); text-align: left;">Building Smarter, Greener Cities with SmartBin</h1>
+                <p class="hero-subtitle" style="color: white !important; text-shadow: 0 1px 5px rgba(0,0,0,0.5); text-align: left;">
+                    IoT-enabled smart waste management system with real-time monitoring, 
+                    route optimization, and role-based dashboards for citizens, drivers, and administrators.
+                </p>
+                <div class="hero-actions" style="color: white !important; justify-content: flex-start;">
+                    <a href="index.html" class="btn btn-primary btn-lg" style="background: #2ecc71 !important; color: white !important; border: 2px solid #2ecc71 !important;">
+                        <i class="fas fa-rocket"></i> Get Started
+                    </a>
+                    <a href="#features" class="btn btn-outline btn-lg" style="color: white !important; border: 2px solid white !important; background: transparent !important;">
+                        <i class="fas fa-play-circle"></i> Learn More
+                    </a>
+                </div>
+                <div class="hero-stats" style="color: white !important; justify-content: flex-start;">
+                    <div class="hero-stat">
+                        <span class="stat-number" style="color: white !important;">156+</span>
+                        <span class="stat-label" style="color: white !important;">Smart Bins</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="stat-number" style="color: white !important;">24/7</span>
+                        <span class="stat-label" style="color: white !important;">Real-Time Monitoring</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="stat-number" style="color: white !important;">72%</span>
+                        <span class="stat-label" style="color: white !important;">Recycling Rate</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Powerful Features for Smart Waste Management</h2>
+                <p>Everything you need to manage waste collection efficiently in modern smart cities</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-image">
+                        <img src="images/smart bin.jpeg" alt="Smart Bin Monitoring">
+                    </div>
+                    <div class="feature-icon green">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <h3>Smart Bin Monitoring</h3>
+                    <p>Real-time fill-level tracking with IoT sensors, weight monitoring, and automatic overflow alerts.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-image">
+                        <img src="images/user.jpeg" alt="Citizen User">
+                    </div>
+                    <div class="feature-icon blue">
+                        <i class="fas fa-truck-loading"></i>
+                    </div>
+                    <h3>Waste Pickup Requests</h3>
+                    <p>Citizens can schedule pickups with waste type, weight estimation, and preferred time slots.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-image">
+                        <img src="images/administrator.jpeg" alt="Administrator">
+                    </div>
+                    <div class="feature-icon orange">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <h3>Route Optimization</h3>
+                    <p>AI-powered collection routes with real-time traffic data and GPS navigation for drivers.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon purple">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Analytics Dashboard</h3>
+                    <p>Interactive charts and reports for administrators with waste trends and recycling metrics.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon red">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Smart Alerts</h3>
+                    <p>Automatic notifications for bin overflow, low battery, missed pickups, and system issues.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon teal">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3>Recycling Education</h3>
+                    <p>Tips and guidelines to promote proper waste segregation and increase recycling rates.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Role Showcase -->
+    <section class="roles" id="roles">
+        <div class="container">
+            <div class="section-header">
+                <h2>Role-Based Dashboards</h2>
+                <p>Tailored experiences for every user in the waste management ecosystem</p>
+            </div>
+            <div class="roles-grid">
+                <div class="role-card citizen">
+                    <div class="role-image">
+                        <img src="images/user.jpeg" alt="Citizen Dashboard">
+                    </div>
+                    <div class="role-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3>Citizen / User</h3>
+                    <ul class="role-features">
+                        <li><i class="fas fa-check"></i> Request waste pickups</li>
+                        <li><i class="fas fa-check"></i> Monitor nearby smart bins</li>
+                        <li><i class="fas fa-check"></i> Report complaints with photos</li>
+                        <li><i class="fas fa-check"></i> View pickup history</li>
+                        <li><i class="fas fa-check"></i> Make payments online</li>
+                        <li><i class="fas fa-check"></i> Access recycling tips</li>
+                    </ul>
+                    <a href="citizen.html" class="btn btn-outline btn-sm">View Demo</a>
+                </div>
+                <div class="role-card driver">
+                    <div class="role-image">
+                        <img src="images/GettyImages-495351035.jpg" alt="Driver Dashboard">
+                    </div>
+                    <div class="role-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3>Driver / Collector</h3>
+                    <ul class="role-features">
+                        <li><i class="fas fa-check"></i> View assigned pickups</li>
+                        <li><i class="fas fa-check"></i> GPS navigation & route maps</li>
+                        <li><i class="fas fa-check"></i> Vehicle status tracking</li>
+                        <li><i class="fas fa-check"></i> Confirm collections</li>
+                        <li><i class="fas fa-check"></i> Real-time fleet updates</li>
+                        <li><i class="fas fa-check"></i> Collection history</li>
+                    </ul>
+                    <a href="driver.html" class="btn btn-outline btn-sm">View Demo</a>
+                </div>
+                <div class="role-card admin">
+                    <div class="role-image">
+                        <img src="images/administrator.jpeg" alt="Admin Dashboard">
+                    </div>
+                    <div class="role-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3>Administrator</h3>
+                    <ul class="role-features">
+                        <li><i class="fas fa-check"></i> Real-time bin monitoring</li>
+                        <li><i class="fas fa-check"></i> Fleet management</li>
+                        <li><i class="fas fa-check"></i> Analytics & reporting</li>
+                        <li><i class="fas fa-check"></i> Complaint management</li>
+                        <li><i class="fas fa-check"></i> User management</li>
+                        <li><i class="fas fa-check"></i> Route optimization</li>
+                    </ul>
+                    <a href="admin.html" class="btn btn-outline btn-sm">View Demo</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section class="technology" id="technology">
+        <div class="container">
+            <div class="section-header">
+                <h2>Built with Modern Technology</h2>
+                <p>Cutting-edge tools and IoT integration for reliable smart city infrastructure</p>
+            </div>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <i class="fas fa-microchip"></i>
+                    <h4>IoT Smart Bins</h4>
+                    <p>Fill-level sensors, weight sensors, GPS tracking, and battery monitoring</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <h4>Leaflet.js Maps</h4>
+                    <p>Real-time bin locations, route optimization, and GPS navigation</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <h4>Chart.js Analytics</h4>
+                    <p>Interactive charts for waste trends, recycling rates, and performance</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-bolt"></i>
+                    <h4>Real-Time Updates</h4>
+                    <p>Live sensor data, instant notifications, and dynamic dashboard updates</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h4>Responsive Design</h4>
+                    <p>Works seamlessly on desktop, tablet, and mobile devices</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <h4>Secure Authentication</h4>
+                    <p>Role-based access control with secure login and user management</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-section" id="map">
+        <div class="container">
+            <div class="section-header">
+                <h2>Smart Bins Across Zambia</h2>
+                <p>Real-time monitoring of waste collection points in major Zambian cities</p>
+            </div>
+            <div id="zambiaMap" style="width: 100%; height: 450px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);"></div>
+        </div>
+    </section>
+
+    <script>
+        function initMap() {
+            const map = new google.maps.Map(document.getElementById('zambiaMap'), {
+                zoom: 6,
+                center: { lat: -13.1339, lng: 27.8493 }, // Zambia center
+                styles: [
+                    { elementType: 'geometry', stylers: [{ color: '#e8f5e9' }] },
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#2c3e50' }] },
+                    { featureType: 'water', stylers: [{ color: '#3498db' }] }
+                ]
+            });
+
+            const bins = [
+                { lat: -15.3875, lng: 28.3228, title: 'Lusaka - Bin #001', fill: 45 },
+                { lat: -13.1339, lng: 27.8493, title: 'Kabwe - Bin #002', fill: 72 },
+                { lat: -11.6683, lng: 27.4833, title: 'Ndola - Bin #003', fill: 95 },
+                { lat: -14.2765, lng: 28.6440, title: 'Chingola - Bin #004', fill: 30 },
+                { lat: -12.8167, lng: 28.2167, title: 'Kitwe - Bin #005', fill: 60 }
+            ];
+
+            bins.forEach(bin => {
+                const color = bin.fill >= 85 ? '#e74c3c' : bin.fill >= 60 ? '#f39c12' : '#2ecc71';
+                new google.maps.Marker({
+                    position: { lat: bin.lat, lng: bin.lng },
+                    map: map,
+                    title: bin.title,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        fillColor: color,
+                        fillOpacity: 1,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2,
+                        scale: 10
+                    }
+                });
+            });
+        }
+    </script>
+
+    <!-- Stats Section -->
+    <section class="stats" id="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-trash-alt"></i>
+                    <div class="stat-number">156</div>
+                    <div class="stat-label">Smart Bins Deployed</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <div class="stat-number">2,500+</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-truck-moving"></i>
+                    <div class="stat-number">28</div>
+                    <div class="stat-label">Fleet Vehicles</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-recycle"></i>
+                    <div class="stat-number">72%</div>
+                    <div class="stat-label">Recycling Rate</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-weight-hanging"></i>
+                    <div class="stat-number">18,200kg</div>
+                    <div class="stat-label">Monthly Waste Processed</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-city"></i>
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Cities Served</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Transform Your City's Waste Management?</h2>
+                <p>Join the smart city revolution with SmartBin's IoT-enabled waste management system.</p>
+                <div class="cta-actions">
+                    <a href="index.html" class="btn btn-primary btn-lg">
+                        <i class="fas fa-rocket"></i> Get Started Now
+                    </a>
+                    <a href="#contact" class="btn btn-outline btn-lg">
+                        <i class="fas fa-envelope"></i> Contact Us
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <i class="fas fa-recycle"></i>
+                        <span>SmartBin</span>
+                    </div>
+                    <p>Building cleaner, smarter cities with IoT-enabled waste management solutions.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <a href="#features">Features</a>
+                    <a href="#roles">Roles</a>
+                    <a href="#technology">Technology</a>
+                    <a href="index.html">Login</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <a href="#">Documentation</a>
+                    <a href="#">API Reference</a>
+                    <a href="#">Support</a>
+                    <a href="#">Privacy Policy</a>
+                </div>
+                <div class="footer-contact" id="contact">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-envelope"></i> info@smartbin.com</p>
+                    <p><i class="fas fa-phone"></i> +1 234 567 8900</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Smart City, Tech Valley</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SmartBin. All rights reserved. | Built for Smart Cities</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+            this.innerHTML = navLinks.classList.contains('active') 
+                ? '<i class="fas fa-times"></i>' 
+                : '<i class="fas fa-bars"></i>';
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                    // Close mobile menu if open
+                    document.getElementById('navLinks').classList.remove('active');
+                    document.getElementById('mobileMenuBtn').innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

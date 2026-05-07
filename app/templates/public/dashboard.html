@@ -1,0 +1,126 @@
+{% extends "shared/layout.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">City Waste Dashboard</h1>
+      <div class="text-muted">Monitor bin usage and coordinate efficient collection.</div>
+    </div>
+    <div class="d-flex gap-2">
+      {% if current_user.is_authenticated and current_user.is_admin %}
+        <a class="btn btn-outline-success" href="{{ url_for('admin.simulate_get') }}"><i class="bi bi-broadcast me-2"></i>Simulate IoT</a>
+        <a class="btn btn-success" href="{{ url_for('admin.routes_new') }}"><i class="bi bi-truck me-2"></i>Generate routes</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card stat-card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Total Bins</div>
+          <div class="display-6">{{ stats.total_bins }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stat-card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Empty</div>
+          <div class="display-6">{{ stats.empty_bins }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stat-card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Moderate</div>
+          <div class="display-6">{{ stats.moderate_bins }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stat-card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Active Trucks/Drivers</div>
+          <div class="display-6">{{ stats.active_collectors }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h2 class="h5 mb-0">Status breakdown</h2>
+            <span class="small text-muted">Live</span>
+          </div>
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <span class="badge badge-status-full">Full: {{ stats.full_bins }}</span>
+            <span class="badge badge-status-overflow">Overflow: {{ stats.overflow_bins }}</span>
+            <span class="badge badge-status-moderate">Moderate: {{ stats.moderate_bins }}</span>
+            <span class="badge badge-status-empty">Empty: {{ stats.empty_bins }}</span>
+          </div>
+          <canvas id="statusChart" height="190"></canvas>
+          <p class="text-muted small mt-3 mb-0">Thresholds: Full ≥70%, Overflow ≥90%.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h2 class="h5 mb-0">Urgent alerts</h2>
+            <a class="small text-decoration-none" href="{{ url_for('public.bins') }}">View all bins</a>
+          </div>
+          {% if urgent_alerts %}
+            <div class="list-group list-group-flush">
+              {% for a in urgent_alerts %}
+                <a class="list-group-item px-0" href="{{ url_for('public.bin_detail', bin_id=a.bin_id) }}">
+                  <div class="d-flex justify-content-between">
+                    <div class="fw-semibold">{{ a.bin.bin_code }} — {{ a.level }}</div>
+                    <div class="text-muted small">{{ a.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                  </div>
+                  <div class="text-muted small">{{ a.bin.location_name }}</div>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-muted">No urgent pickups right now.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-success" href="{{ url_for('public.bins') }}">View bins</a>
+    <a class="btn btn-outline-success" href="{{ url_for('public.map_view') }}">Open map</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const data = {
+    labels: ['Empty','Moderate','Full','Overflow'],
+    datasets: [{
+      data: [{{ stats.empty_bins }}, {{ stats.moderate_bins }}, {{ stats.full_bins }}, {{ stats.overflow_bins }}],
+      backgroundColor: ['#0ea5e9','#f59e0b','#ef4444','#7c3aed'],
+      borderWidth: 0
+    }]
+  };
+  const ctx = document.getElementById('statusChart');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data,
+    options: {
+      plugins: { legend: { position: 'bottom' } },
+      cutout: '60%'
+    }
+  });
+</script>
+{% endblock %}

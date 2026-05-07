@@ -1,0 +1,226 @@
+{% extends "shared/dash_layout.html" %}
+{% block title %}Driver Dashboard{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block sidebar %}
+  <div class="dash-brand">
+    <div class="logo"><i class="bi bi-leaf"></i></div>
+    <div>
+      <div class="title">WasteWise</div>
+      <div class="small text-white-50">Driver App</div>
+    </div>
+  </div>
+  <nav class="dash-nav nav flex-column gap-1">
+    <a class="nav-link active" href="{{ url_for('collector.my_route') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+    <a class="nav-link" href="{{ url_for('collector.my_route') }}"><i class="bi bi-signpost-2"></i> My Route</a>
+    <a class="nav-link" href="{{ url_for('collector.my_route') }}"><i class="bi bi-geo"></i> Stops</a>
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true"><i class="bi bi-chat-left-text"></i> Messages</a>
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true"><i class="bi bi-bar-chart"></i> Reports</a>
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true"><i class="bi bi-person"></i> Profile</a>
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true"><i class="bi bi-gear"></i> Settings</a>
+    <div class="mt-auto pt-3 px-2">
+      <a class="nav-link" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </div>
+  </nav>
+{% endblock %}
+
+{% block dash_content %}
+  <div class="dash-topbar mb-3">
+    <div>
+      <h1 class="h4 mb-1">Good day, {{ current_user.first_name or current_user.username }}!</h1>
+      <div class="text-muted">Route {{ r.route_code }} · Status: {{ r.status }}</div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <div class="pill text-muted small d-flex align-items-center gap-2">
+        <i class="bi bi-calendar3"></i>
+        <span class="fw-semibold">{{ r.created_at.strftime('%b %d, %Y') if r.created_at else '' }}</span>
+      </div>
+      <a class="btn btn-outline-success" href="{{ url_for('public.map_view') }}"><i class="bi bi-map"></i> Map</a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="dash-card p-3 h-100">
+        <div class="dash-metric">
+          <div>
+            <div class="text-muted small">Stops Today</div>
+            <div class="fs-3 fw-semibold">{{ summary.total_stops }}</div>
+            <div class="small text-success">{{ summary.collected }} completed</div>
+          </div>
+          <div class="icon"><i class="bi bi-geo-alt"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="dash-card p-3 h-100">
+        <div class="dash-metric">
+          <div>
+            <div class="text-muted small">Collections</div>
+            <div class="fs-3 fw-semibold">{{ summary.collected }}</div>
+            <div class="small text-muted">Completed</div>
+          </div>
+          <div class="icon"><i class="bi bi-recycle"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="dash-card p-3 h-100">
+        <div class="dash-metric">
+          <div>
+            <div class="text-muted small">Pending</div>
+            <div class="fs-3 fw-semibold">{{ summary.pending }}</div>
+            <div class="small text-muted">Remaining</div>
+          </div>
+          <div class="icon"><i class="bi bi-hourglass-split"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="dash-card p-3 h-100">
+        <div class="dash-metric">
+          <div style="min-width: 0;">
+            <div class="text-muted small">Progress</div>
+            <div class="fs-3 fw-semibold">{{ summary.progress_pct }}%</div>
+            <div class="progress" role="progressbar" aria-label="Progress" aria-valuenow="{{ summary.progress_pct }}" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
+              <div class="progress-bar bg-success" style="width: {{ summary.progress_pct }}%"></div>
+            </div>
+          </div>
+          <div class="icon"><i class="bi bi-speedometer2"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-xl-8">
+      <div class="dash-card p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fw-semibold">Today's Route</div>
+          <div class="text-muted small">Stops: {{ stops|length }}</div>
+        </div>
+        <div id="collectorRouteMap" class="map-box" style="height: 340px;"></div>
+        <div class="text-muted small mt-2">Map shows route points; use the list to collect each stop.</div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      <div class="dash-card p-3 mb-3">
+        <div class="fw-semibold mb-2">Next Stop</div>
+        {% if next_stop %}
+          <div class="d-flex align-items-start justify-content-between">
+            <div>
+              <div class="fw-semibold">{{ next_stop.bin.location_name }}</div>
+              <div class="text-muted small">{{ next_stop.bin.bin_code }} · {{ next_stop.bin.area or '—' }}</div>
+            </div>
+            <span class="badge text-bg-warning">Pending</span>
+          </div>
+          <div class="d-flex gap-2 mt-3">
+            <span class="badge text-bg-light border text-dark"><i class="bi bi-trash3"></i> {{ next_stop.bin.waste_type }}</span>
+            <span class="badge text-bg-light border text-dark"><i class="bi bi-percent"></i> {{ next_stop.bin.fill_level }}%</span>
+          </div>
+          <div class="d-grid gap-2 mt-3">
+            <a class="btn btn-success" href="{{ url_for('collector.collect_stop', stop_id=next_stop.id) }}" onclick="return confirm('Mark collected and empty bin?')">
+              <i class="bi bi-check2-circle"></i> Collect
+            </a>
+          </div>
+        {% else %}
+          <div class="text-muted small">All stops collected. Nice work.</div>
+        {% endif %}
+      </div>
+
+      <div class="dash-card p-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fw-semibold">Stops</div>
+          <a class="small" href="#stopsTable">All stops</a>
+        </div>
+        <div class="vstack gap-2" style="max-height: 260px; overflow:auto;">
+          {% for s in stops %}
+            <div class="d-flex align-items-center justify-content-between border rounded-3 p-2 bg-white bg-opacity-50">
+              <div style="min-width:0">
+                <div class="fw-semibold text-truncate">{{ s.seq }}. {{ s.bin.location_name }}</div>
+                <div class="text-muted small text-truncate">{{ s.bin.bin_code }} · {{ s.bin.fill_level }}% · {{ s.bin.status }}</div>
+              </div>
+              {% if s.status == 'collected' %}
+                <span class="badge text-bg-success">Collected</span>
+              {% else %}
+                <span class="badge text-bg-warning">Pending</span>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-card p-0 mt-3" id="stopsTable">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Bin</th>
+            <th>Location</th>
+            <th>Fill</th>
+            <th>Status</th>
+            <th>Stop</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in stops %}
+            <tr>
+              <td class="text-muted">{{ s.seq }}</td>
+              <td class="fw-semibold">{{ s.bin.bin_code }}</td>
+              <td>{{ s.bin.location_name }}</td>
+              <td>{{ s.bin.fill_level }}%</td>
+              <td><span class="badge text-bg-secondary">{{ s.bin.status }}</span></td>
+              <td>
+                {% if s.status == 'collected' %}
+                  <span class="badge text-bg-success">Collected</span>
+                {% else %}
+                  <span class="badge text-bg-warning">Pending</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                {% if s.status != 'collected' %}
+                  <a class="btn btn-sm btn-success" href="{{ url_for('collector.collect_stop', stop_id=s.id) }}" onclick="return confirm('Mark collected and empty bin?')">Collect</a>
+                {% else %}
+                  <span class="text-muted small">Done</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const stops = {{ stops_points|tojson }};
+    const map = L.map('collectorRouteMap').setView([51.5074, -0.1278], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const points = [];
+    stops.forEach(s => {
+      points.push([s.lat, s.lon]);
+      const color = s.status === "collected" ? "#16a34a" : "#0f7b6c";
+      L.circleMarker([s.lat, s.lon], {radius: 7, color}).addTo(map)
+        .bindPopup(`<b>${s.seq}. ${s.bin_code}</b><br>Bin: ${s.fill_level}% (${s.bin_status})<br>Stop: ${s.status}`);
+    });
+
+    if (points.length) {
+      const line = L.polyline(points, {color: '#0f7b6c'}).addTo(map);
+      map.fitBounds(line.getBounds().pad(0.2));
+    }
+  </script>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "shared/layout.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Notification Logs</h1>
+      <div class="text-muted">Simulated SMS/Email/System messages triggered by alerts.</div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Time</th>
+            <th>Channel</th>
+            <th>Recipient</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for n in logs %}
+            <tr>
+              <td class="text-muted small">{{ n.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td><span class="badge text-bg-secondary">{{ n.channel }}</span></td>
+              <td class="text-muted">{{ n.recipient or '-' }}</td>
+              <td>{{ n.message }}</td>
+            </tr>
+          {% endfor %}
+          {% if not logs %}
+            <tr><td colspan="4" class="text-muted">No notifications yet.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

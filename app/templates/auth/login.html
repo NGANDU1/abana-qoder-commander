@@ -1,0 +1,26 @@
+{% extends "shared/layout.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 440px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <h1 class="h4 mb-1">Smart Waste Login</h1>
+      <p class="text-muted mb-4">Use the sample accounts from the README to test the system.</p>
+      <form method="post" action="{{ url_for('auth.login_post') }}">
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input class="form-control" name="username" required autocomplete="username">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input class="form-control" type="password" name="password" required autocomplete="current-password">
+        </div>
+        <button class="btn btn-success w-100" type="submit">Login</button>
+      </form>
+      <div class="text-center mt-3">
+        <a class="small text-decoration-none" href="{{ url_for('auth.register') }}">Create an account</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "shared/layout.html" %}
+{% block title %}Trucks{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Collection Trucks</h1>
+      <div class="text-muted">Assign workers (drivers/collectors) and track active vehicles.</div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-3">
+    <div class="card-body">
+      <h2 class="h6 mb-3">Add Truck</h2>
+      <form class="row g-2" method="post" action="{{ url_for('admin.truck_create_post') }}">
+        <div class="col-md-3">
+          <input class="form-control" name="name" placeholder="Truck A" required>
+        </div>
+        <div class="col-md-2">
+          <input class="form-control" name="plate_no" placeholder="ABC-123" required>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" name="driver_id">
+            <option value="">No driver</option>
+            {% for c in collectors %}
+              <option value="{{ c.id }}">{{ c.username }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select class="form-select" name="status">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-grid">
+          <button class="btn btn-success" type="submit">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>Plate</th>
+            <th>Status</th>
+            <th>Driver</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in trucks %}
+            <tr>
+              <td class="fw-semibold">{{ t.name }}</td>
+              <td class="text-muted">{{ t.plate_no }}</td>
+              <td>
+                {% if t.status=='active' %}
+                  <span class="badge text-bg-success">Active</span>
+                {% else %}
+                  <span class="badge text-bg-secondary">Inactive</span>
+                {% endif %}
+              </td>
+              <td>{{ t.driver.username if t.driver else '-' }}</td>
+              <td class="text-end">
+                <form class="d-inline-flex gap-1" method="post" action="{{ url_for('admin.truck_assign', truck_id=t.id) }}">
+                  <select class="form-select form-select-sm" name="driver_id">
+                    <option value="">No driver</option>
+                    {% for c in collectors %}
+                      <option value="{{ c.id }}" {% if t.driver_id==c.id %}selected{% endif %}>{{ c.username }}</option>
+                    {% endfor %}
+                  </select>
+                  <select class="form-select form-select-sm" name="status">
+                    <option value="active" {% if t.status=='active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if t.status=='inactive' %}selected{% endif %}>Inactive</option>
+                  </select>
+                  <button class="btn btn-sm btn-outline-success" type="submit">Save</button>
+                </form>
+                <a class="btn btn-sm btn-outline-danger" href="{{ url_for('admin.truck_delete', truck_id=t.id) }}" onclick="return confirm('Delete this truck?')">Delete</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

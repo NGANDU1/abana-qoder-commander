@@ -1,0 +1,210 @@
+:root{
+  /* Smart Collection theme */
+  --sw-primary: #0b5b50;
+  --sw-primary-2: #0f7b6c;
+  --sw-accent: #16a34a;
+  --sw-bg: #f4fbf7;
+  --sw-surface: #ffffff;
+  --sw-ink: #0f172a;
+  --sw-muted: #475569;
+  --sw-border: rgba(2, 6, 23, .10);
+
+  /* Back-compat aliases */
+  --app-green: var(--sw-primary-2);
+  --app-green-dark: var(--sw-primary);
+  --app-accent: #a7f3d0;
+  --app-bg: var(--sw-bg);
+  --app-ink: var(--sw-ink);
+  --app-muted: var(--sw-muted);
+
+  /* Bootstrap theme overrides */
+  --bs-primary: var(--sw-primary);
+  --bs-primary-rgb: 11, 91, 80;
+  --bs-success: var(--sw-accent);
+  --bs-success-rgb: 22, 163, 74;
+  --bs-body-bg: var(--sw-bg);
+  --bs-body-color: var(--sw-ink);
+  --bs-link-color: var(--sw-primary-2);
+  --bs-link-color-rgb: 15, 123, 108;
+  --bs-link-hover-color: var(--sw-primary);
+  --bs-border-color: var(--sw-border);
+}
+
+.bg-app{
+  background:
+    radial-gradient(1200px 600px at 15% 0%, rgba(15,123,108,.14), transparent 55%),
+    radial-gradient(900px 520px at 88% 10%, rgba(22,163,74,.10), transparent 60%),
+    var(--sw-bg);
+  color: var(--sw-ink);
+}
+
+.app-nav{
+  background: linear-gradient(90deg, var(--app-green-dark), var(--app-green));
+}
+
+.navbar .nav-link{ opacity:.95; }
+.navbar .nav-link:hover{ opacity:1; }
+
+.hero{
+  background: radial-gradient(900px 420px at 25% 10%, rgba(167,243,208,.55), transparent 55%),
+              radial-gradient(700px 420px at 85% 20%, rgba(14,165,233,.22), transparent 60%),
+              linear-gradient(135deg, rgba(11,91,80,.08), rgba(15,123,108,.06));
+  border: 1px solid rgba(2,6,23,.06);
+  border-radius: 18px;
+}
+
+.shadow-soft{ box-shadow: 0 10px 30px rgba(2,6,23,.08); }
+
+.stat-card{
+  border: 0;
+  border-left: 5px solid var(--app-green);
+}
+
+.badge-status-empty{background:#0ea5e9;}
+.badge-status-moderate{background:#f59e0b;}
+.badge-status-full{background:#ef4444;}
+.badge-status-overflow{background:#7c3aed;}
+
+.map-box{
+  height: 520px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.kpi{
+  border: 1px solid rgba(2,6,23,.06);
+  border-radius: 16px;
+}
+
+.kpi .icon{
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display:flex; align-items:center; justify-content:center;
+  background: rgba(15,123,108,.12);
+  color: var(--app-green-dark);
+}
+
+canvas{
+  max-width: 100%;
+}
+
+.app-footer{
+  background: rgba(255,255,255,.60);
+  border-top: 1px solid var(--sw-border);
+  backdrop-filter: blur(8px);
+}
+
+.bg-dash{
+  background:
+    radial-gradient(1200px 650px at 15% 0%, rgba(15,123,108,.14), transparent 55%),
+    radial-gradient(900px 520px at 88% 10%, rgba(22,163,74,.10), transparent 60%),
+    #f6fbf8;
+  color: var(--sw-ink);
+}
+
+.dash-shell{
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+}
+
+.dash-sidebar{
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 18px 14px;
+  background: linear-gradient(180deg, #0a4b44, #083d37);
+  color: rgba(255,255,255,.92);
+}
+
+.dash-main{
+  min-width: 0;
+}
+
+.dash-brand{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 10px 14px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  margin-bottom: 12px;
+}
+
+.dash-brand .logo{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(255,255,255,.10);
+}
+
+.dash-brand .title{
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.dash-nav .nav-link{
+  color: rgba(255,255,255,.85);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+
+.dash-nav .nav-link:hover{
+  background: rgba(255,255,255,.08);
+  color: #fff;
+}
+
+.dash-nav .nav-link.active{
+  background: rgba(255,255,255,.14);
+  color: #fff;
+}
+
+.dash-card{
+  border: 1px solid rgba(2,6,23,.06);
+  border-radius: 18px;
+  background: rgba(255,255,255,.75);
+  backdrop-filter: blur(10px);
+}
+
+.dash-metric{
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dash-metric .icon{
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(15,123,108,.12);
+  color: var(--sw-primary);
+  flex: 0 0 auto;
+}
+
+.dash-topbar{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dash-topbar .pill{
+  border: 1px solid rgba(2,6,23,.06);
+  background: rgba(255,255,255,.75);
+  border-radius: 14px;
+  padding: 8px 12px;
+}
+
+@media (max-width: 992px){
+  .dash-shell{ grid-template-columns: 1fr; }
+  .dash-sidebar{ position: relative; height: auto; }
+}

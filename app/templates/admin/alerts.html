@@ -1,0 +1,59 @@
+{% extends "shared/layout.html" %}
+{% block title %}Alerts{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Alerts & Notifications</h1>
+      <div class="text-muted">Triggered when bins reach Full/Overflow thresholds.</div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h2 class="h5">Active Alerts</h2>
+          {% if active %}
+            <div class="list-group list-group-flush">
+              {% for a in active %}
+                <div class="list-group-item px-0">
+                  <div class="d-flex justify-content-between">
+                    <div class="fw-semibold">{{ a.bin.bin_code }} — {{ a.level }}</div>
+                    <a class="btn btn-sm btn-outline-success" href="{{ url_for('admin.alert_resolve', alert_id=a.id) }}">Resolve</a>
+                  </div>
+                  <div class="text-muted small">{{ a.message }}</div>
+                  <div class="text-muted small">{{ a.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-muted">No active alerts.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h2 class="h5">Alert History (last 50)</h2>
+          {% if history %}
+            <div class="list-group list-group-flush">
+              {% for a in history %}
+                <div class="list-group-item px-0">
+                  <div class="fw-semibold">{{ a.bin.bin_code }} — {{ a.level }}</div>
+                  <div class="text-muted small">{{ a.message }}</div>
+                  <div class="text-muted small">Created: {{ a.created_at.strftime('%Y-%m-%d %H:%M') }} · Resolved: {{ a.resolved_at.strftime('%Y-%m-%d %H:%M') if a.resolved_at else '-' }}</div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-muted">No history.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

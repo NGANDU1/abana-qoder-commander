@@ -1,0 +1,44 @@
+{% extends "shared/layout.html" %}
+{% block title %}Generate Routes{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 720px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <h1 class="h4 mb-1">Generate Optimized Routes</h1>
+      <p class="text-muted mb-4">
+        Algorithm: <b>Greedy Nearest-Neighbor (Urgency Weighted)</b>. Full/Overflow bins get higher priority, but the next stop is still chosen based on distance.
+      </p>
+
+      <form method="post" action="{{ url_for('admin.routes_new_post') }}">
+        <div class="row g-2">
+          <div class="col-12 mb-3">
+            <label class="form-label">Generate for driver (optional)</label>
+            <select class="form-select" name="driver_id">
+              <option value="0" selected>Auto (use active trucks)</option>
+              {% for d in drivers %}
+                <option value="{{ d.id }}">{{ d.username }}</option>
+              {% endfor %}
+            </select>
+            <div class="form-text">Pick a driver to generate a route only for that driver’s assigned truck.</div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Pickup threshold (%)</label>
+            <input class="form-control" type="number" name="threshold" min="0" max="100" value="70" required>
+            <div class="form-text">Bins with fill level ≥ threshold are selected for routes.</div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Number of trucks</label>
+            <input class="form-control" type="number" name="num_trucks" min="1" value="{{ trucks|length if trucks else 1 }}" required>
+            <div class="form-text">System uses active trucks (up to available).</div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-success" type="submit">Generate</button>
+          <a class="btn btn-outline-secondary" href="{{ url_for('admin.routes_list') }}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
